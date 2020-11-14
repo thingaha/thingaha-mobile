@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thingaha/screen/splash.dart';
 import 'package:thingaha/util/constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 
@@ -19,14 +20,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primaryColor: kPrimaryColor
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(APP_NAME),
-        ),
-        body: Center(
-          child: Text('Hello World'),
-        ),
-      ),
+      home: Splash()
     );
   }
 }

@@ -1,1 +1,1 @@
-const APP_NAME = 'SPH Rewards';
+const APP_NAME = 'Thingaha';
