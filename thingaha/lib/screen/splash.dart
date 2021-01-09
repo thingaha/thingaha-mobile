@@ -28,14 +28,6 @@ class _SplashState extends State<Splash> {
 
   @override
   Widget build(BuildContext context) {
-
-    /*Timer(
-      Duration(seconds: delay),
-      () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Login())
-            )
-    );*/
     
     return Container(
       decoration: BoxDecoration(
