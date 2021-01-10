@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'login.dart';
 
-const delay = 2;
+const delay = 1;
 
 class Splash extends StatefulWidget {
   @override
@@ -16,7 +16,7 @@ class _SplashState extends State<Splash> {
   void initState() {
     super.initState();
 
-    /* Show logo for 3 seconds and go to login page */
+    /* Show logo for 1 seconds and go to login page */
     Future.delayed(
         Duration(seconds: delay),
             () => Navigator.push(
@@ -28,14 +28,6 @@ class _SplashState extends State<Splash> {
 
   @override
   Widget build(BuildContext context) {
-
-    /*Timer(
-      Duration(seconds: delay),
-      () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => Login())
-            )
-    );*/
     
     return Container(
       decoration: BoxDecoration(
