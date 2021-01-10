@@ -1,4 +1,4 @@
-//This is a temporary file to store string
+//This is a temporary file to store strings
 
 String txt_email = "Email";
 String txt_password = "Password";

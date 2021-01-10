@@ -43,7 +43,7 @@ class _LoginState extends State<Login> {
     final passwordTextField = _buildTextField(txt_password, true);
 
     final loginButton = Material(
-      color: Color(0x90ffffff),
+      color: shadeGreyColor,
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
       child: MaterialButton(
