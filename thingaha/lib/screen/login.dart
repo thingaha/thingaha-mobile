@@ -11,6 +11,9 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -45,7 +48,9 @@ class _LoginState extends State<Login> {
       borderRadius: BorderRadius.circular(30.0),
       child: MaterialButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+          if(_formKey.currentState.validate()) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Home()));
+          }
         },
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
@@ -64,7 +69,8 @@ class _LoginState extends State<Login> {
       ),
     );
 
-    return Container(
+    return Form(
+      key: _formKey,
       child: Column(
         children: <Widget>[
           emailTextField,
@@ -79,7 +85,14 @@ class _LoginState extends State<Login> {
 
   Widget _buildTextField(String label, bool isPassword) {
     return Material(
-      child: TextField(
+      child: TextFormField(
+        validator: (value) {
+          if (value.isEmpty) {
+            return txt_login_error_msg;
+          }
+          return null;
+        },
+        keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           labelText: label,
           contentPadding: EdgeInsets.only(left: 10.0, bottom: 0.0),
