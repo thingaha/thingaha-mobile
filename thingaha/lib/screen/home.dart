@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:thingaha/helper/reusable_widget.dart';
+import 'package:thingaha/screen/DrawerItem.dart';
 import 'package:thingaha/screen/all_students.dart';
 import 'package:thingaha/screen/history.dart';
 import 'package:thingaha/screen/student_info.dart';
@@ -22,7 +23,11 @@ class _HomeState extends State<Home> {
       onWillPop: () => SystemChannels.platform.invokeMethod('SystemNavigator.pop'),  // onBackPress => exit the app
       child: Scaffold(
         appBar: AppBar(
-          title: Text(APP_NAME),
+          title: Text(
+              APP_NAME,
+              style: TextStyle(color: Colors.white)
+          ),
+          iconTheme: new IconThemeData(color: Colors.white),
           leading: Builder(
               builder: (context) => IconButton(
                 icon: new Icon(Icons.menu),
@@ -46,6 +51,10 @@ class _HomeState extends State<Home> {
     );
   }
 
+  _buildCarousel() {
+
+  }
+
   Widget _buildDrawerLayout() {
     return Drawer(
       child: Container(
@@ -55,20 +64,11 @@ class _HomeState extends State<Home> {
 
             _buildDrawerHeader(),
 
-            _buildMenuItems(txt_my_student, null),
-            ReusableWidgets.getDivider(),
-
-            _buildMenuItems(txt_all_students, AllStudents()),
-            ReusableWidgets.getDivider(),
-
-            _buildMenuItems(txt_history, History()),
-            ReusableWidgets.getDivider(),
-
-            _buildMenuItems(txt_profile, Profile()),
-            ReusableWidgets.getDivider(),
-
-            _buildMenuItems(txt_logout, null),
-            ReusableWidgets.getDivider(),
+            DrawerItem(txt_my_student, null),
+            DrawerItem(txt_all_students, AllStudents()),
+            DrawerItem(txt_history, History()),
+            DrawerItem(txt_profile, Profile()),
+            DrawerItem(txt_logout, null),
 
           ],
         ),
@@ -100,22 +100,6 @@ class _HomeState extends State<Home> {
               colors: [kPrimaryColor, Colors.lightGreen]
           )
       ),
-    );
-  }
-
-  Widget _buildMenuItems(String title, Widget nextPage) {
-    return ListTile(
-      title: Text(title),
-      onTap: () {
-        Navigator.pop(context);
-
-        if(title != txt_my_student && nextPage != null) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => nextPage));
-        }
-        else if(title == txt_logout) {
-          //Do something for logout
-        }
-      },
     );
   }
 }
