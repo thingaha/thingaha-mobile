@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:thingaha/helper/reusable_widget.dart';
-import 'package:thingaha/screen/DrawerItem.dart';
+import 'package:thingaha/helper/custom_carousel.dart';
+import 'package:thingaha/model/student_donation_status.dart';
+import 'package:thingaha/helper/drawer_item.dart';
 import 'package:thingaha/screen/all_students.dart';
 import 'package:thingaha/screen/history.dart';
-import 'package:thingaha/screen/student_info.dart';
 import 'package:thingaha/screen/profile.dart';
 import 'package:thingaha/util/constants.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
+import 'package:thingaha/helper/monthly_status.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -38,21 +39,75 @@ class _HomeState extends State<Home> {
 
         drawer: _buildDrawerLayout(),
 
-        body: Center(
-          child: MaterialButton(
-            child: Text("Go to Student info"),
-            color: kPrimaryColor,
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => StudentInfo()));
-            },
-          ),
-        ),
+        body: SingleChildScrollView(
+          child: _buildCarousel(),
+        )
+
       ),
     );
   }
 
-  _buildCarousel() {
+  Widget _buildCarousel() {
+    //Get data from api
+    List<StudentDonationStatus> studentDonationStatusList = getStudentDonationStatusList();
 
+    //Create carousel widgets
+    List<Widget> carouselItems = studentDonationStatusList.map((item) => MonthlyStatus(studentStatus: item)).toList();
+    return CustomCarousel(
+        items: carouselItems
+    );
+  }
+
+  List<StudentDonationStatus> getStudentDonationStatusList() {
+    DonationStatus month1 = DonationStatus();
+    month1.month = "March";
+    month1.amount = "35,000";
+    month1.date = "-";
+    month1.donated = "Not yet";
+    month1.status = false;
+
+    DonationStatus month2 = DonationStatus();
+    month2.month = "February";
+    month2.amount = "35,000";
+    month2.date = "2 Feb 2021";
+    month2.donated = "Donated";
+    month2.status = true;
+
+    DonationStatus month3 = DonationStatus();
+    month3.month = "January";
+    month3.amount = "35,000";
+    month3.date = "1 Feb 2021";
+    month3.donated = "Donated";
+    month3.status = true;
+
+    DonationStatus month4 = DonationStatus();
+    month4.month = "December";
+    month4.amount = "35,000";
+    month4.date = "2 Dec 2020";
+    month4.donated = "Donated";
+    month4.status = true;
+
+    DonationStatus month5 = DonationStatus();
+    month5.month = "November";
+    month5.amount = "35,000";
+    month5.date = "1 Nov 2020";
+    month5.donated = "Donated";
+    month5.status = true;
+
+    StudentDonationStatus student1 = StudentDonationStatus();
+    student1.name = "Kyaw Kyaw";
+    student1.grade = "7th Grade";
+    student1.dateOfBirth = "23 April 1997";
+    student1.donationStatus = [month1, month2, month3, month4, month5];
+
+    StudentDonationStatus student2 = StudentDonationStatus();
+    student2.name = "Su Nandar";
+    student2.grade = "3rd Grade";
+    student2.dateOfBirth = "3 June 2015";
+    student2.donationStatus = [month2, month3];
+
+    List<StudentDonationStatus> studentList = [student1, student2];
+    return studentList;
   }
 
   Widget _buildDrawerLayout() {
@@ -64,12 +119,26 @@ class _HomeState extends State<Home> {
 
             _buildDrawerHeader(),
 
-            DrawerItem(txt_my_student, null),
-            DrawerItem(txt_all_students, AllStudents()),
-            DrawerItem(txt_history, History()),
-            DrawerItem(txt_profile, Profile()),
-            DrawerItem(txt_logout, null),
-
+            DrawerItem(
+                title: txt_my_student,
+                route: null
+            ),
+            DrawerItem(
+                title: txt_all_students,
+                route: AllStudents()
+            ),
+            DrawerItem(
+                title: txt_history,
+                route: History()
+            ),
+            DrawerItem(
+                title: txt_profile,
+                route: Profile()
+            ),
+            DrawerItem(
+                title: txt_logout,
+                route: null
+            ),
           ],
         ),
       ),
