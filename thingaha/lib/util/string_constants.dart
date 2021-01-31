@@ -19,3 +19,7 @@ String txt_amount = "Amount";
 String txt_date = "Date";
 String txt_status = "Status";
 String txt_monthly_donation_status = "Monthly donation status";
+String txt_school = "School";
+String txt_parent = "Parent";
+String txt_parentOccupation = "Parent's Occupation";
+String txt_address = "Address";
