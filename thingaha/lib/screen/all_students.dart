@@ -17,11 +17,14 @@ class _AllStudentsState extends State<AllStudents> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ReusableWidgets.getAppBar(txt_all_students),
-      body: ListView.builder(
-        itemCount: years.length,
-        itemBuilder: (context, index) {
-          return _buildYearWidget(years[index]);
-        }
+      body: Container(
+        margin: EdgeInsets.all(10.0),
+        child: ListView.builder(
+          itemCount: years.length,
+          itemBuilder: (context, index) {
+            return _buildYearWidget(years[index]);
+          }
+        ),
       )
     );
   }
