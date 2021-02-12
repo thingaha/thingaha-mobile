@@ -23,3 +23,6 @@ String txt_school = "School";
 String txt_parent = "Parent";
 String txt_parentOccupation = "Parent's Occupation";
 String txt_address = "Address";
+String txt_country = "Country";
+String txt_change_password = "Change Password";
+String txt_edit_profile = "Edit Profile";

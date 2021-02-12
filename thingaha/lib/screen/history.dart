@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:thingaha/helper/custom_appbar.dart';
 import 'package:thingaha/helper/custom_cardview.dart';
-import 'package:thingaha/helper/reusable_widget.dart';
 import 'package:thingaha/screen/student_per_year.dart';
 import 'package:thingaha/util/string_constants.dart';
 
@@ -16,7 +16,7 @@ class _HistoryState extends State<History> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ReusableWidgets.getAppBar(txt_history),
+      appBar: CustomAppBar(title: txt_history),
       body: ListView.builder(
           itemCount: years.length,
           itemBuilder: (context, index) {

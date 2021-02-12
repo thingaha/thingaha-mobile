@@ -9,13 +9,13 @@ class CustomCardView extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    double radius = borderRadius == null? 10.0 : borderRadius;
+    double defaultRadius = 10.0;
 
     return GestureDetector(
       onTap: onPress,
       child: Card(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radius), // if you need this
+          borderRadius: BorderRadius.circular(borderRadius ?? defaultRadius),
           side: BorderSide(
             color: Colors.grey.withOpacity(0.2),
             width: 1,

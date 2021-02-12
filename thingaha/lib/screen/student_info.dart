@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:thingaha/helper/custom_appbar.dart';
 import 'package:thingaha/helper/custom_cardview.dart';
-import 'package:thingaha/helper/reusable_widget.dart';
+import 'package:thingaha/helper/title_and_text_with_column.dart';
 import 'package:thingaha/model/student.dart';
 import 'package:thingaha/util/string_constants.dart';
 
@@ -13,7 +14,7 @@ class _StudentInfoState extends State<StudentInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ReusableWidgets.getAppBar(txt_student_info),
+      appBar: CustomAppBar(title: txt_student_info),
       body: SingleChildScrollView(
         child: _buildStudentInfo(context),
       )
@@ -40,47 +41,30 @@ class _StudentInfoState extends State<StudentInfo> {
     )
     ;
 
-    return CustomCardView(
-      cardView: Container(
-        width: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.all(15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            photoWidget,
-            SizedBox(height: 20.0),
-
-            _buildInfo(txt_name, student.name),
-            _buildInfo(txt_grade, student.grade),
-            _buildInfo(txt_date_of_birth, student.dateOfBirth),
-            _buildInfo(txt_school, student.school),
-            _buildInfo(txt_parent, student.parent),
-            _buildInfo(txt_parentOccupation, student.parentOccupation),
-            _buildInfo(txt_address, student.address),
-
-          ],
-        ),
-      ),
-    )
-    ;
-  }
-
-  Widget _buildInfo(title, text) {
     return Container(
-      padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: TextStyle(fontSize: 16)),
-          Text("  :  ", style: TextStyle(fontSize: 16)),
-          Expanded(
-              child: Text(
-                  text,
-                  style: TextStyle(fontSize: 16)
-              )
-          )
-        ],
+      margin: EdgeInsets.all(10.0),
+      child: CustomCardView(
+        cardView: Container(
+          width: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+              photoWidget,
+              SizedBox(height: 20.0),
+
+              TitleAndTextWithColumn(title: txt_name, text: student.name),
+              TitleAndTextWithColumn(title: txt_grade, text: student.grade),
+              TitleAndTextWithColumn(title: txt_date_of_birth, text: student.dateOfBirth),
+              TitleAndTextWithColumn(title: txt_school, text: student.school),
+              TitleAndTextWithColumn(title: txt_parent, text: student.parent),
+              TitleAndTextWithColumn(title: txt_parentOccupation, text: student.parentOccupation),
+              TitleAndTextWithColumn(title: txt_address, text: student.address),
+
+            ],
+          ),
+        ),
       ),
     )
     ;
