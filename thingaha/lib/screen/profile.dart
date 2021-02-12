@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:thingaha/helper/custom_appbar.dart';
 import 'package:thingaha/helper/custom_cardview.dart';
-import 'package:thingaha/helper/reusable_widget.dart';
 import 'package:thingaha/helper/title_and_text_with_column.dart';
 import 'package:thingaha/model/donor.dart';
+import 'package:thingaha/screen/change_password.dart';
+import 'package:thingaha/screen/edit_profile.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 
@@ -20,7 +21,11 @@ class _ProfileState extends State<Profile> {
       appBar: CustomAppBar(
           title: txt_profile,
           actionButton: [
-            Icon(Icons.edit, color: Colors.white)
+            IconButton(
+              icon: Icon(Icons.edit, color: Colors.white),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile()));
+              })
           ],
       ),
       body: _buildProfile()
@@ -70,7 +75,9 @@ class _ProfileState extends State<Profile> {
     Widget changePassword = Container(
       margin: EdgeInsets.symmetric(vertical: 25.0),
       child: MaterialButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePassword()));
+        },
         color: kPrimaryColor,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0)
