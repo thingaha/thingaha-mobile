@@ -3,12 +3,13 @@ import 'package:thingaha/util/style_constants.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
-  final Widget actionButton;
+  final List<Widget> actionButton;
 
   CustomAppBar({@required this.title, this.actionButton});
 
   @override
   Widget build(BuildContext context) {
+
     return AppBar(
       backgroundColor: kPrimaryColor,
       iconTheme: new IconThemeData(color: Colors.white), //drawer icon color
@@ -28,6 +29,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               )
           )
       ),
+      actions: actionButton ?? null,
     );
   }
 
