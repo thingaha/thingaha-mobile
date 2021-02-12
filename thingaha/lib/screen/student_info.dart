@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:thingaha/helper/custom_appbar.dart';
 import 'package:thingaha/helper/custom_cardview.dart';
-import 'package:thingaha/helper/reusable_widget.dart';
 import 'package:thingaha/helper/title_and_text_with_column.dart';
 import 'package:thingaha/model/student.dart';
 import 'package:thingaha/util/string_constants.dart';
@@ -14,7 +14,7 @@ class _StudentInfoState extends State<StudentInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ReusableWidgets.getAppBar(txt_student_info),
+      appBar: CustomAppBar(title: txt_student_info),
       body: SingleChildScrollView(
         child: _buildStudentInfo(context),
       )

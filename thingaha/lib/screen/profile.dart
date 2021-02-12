@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:thingaha/helper/custom_appbar.dart';
 import 'package:thingaha/helper/custom_cardview.dart';
 import 'package:thingaha/helper/reusable_widget.dart';
 import 'package:thingaha/helper/title_and_text_with_column.dart';
@@ -16,7 +17,7 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ReusableWidgets.getAppBar(txt_profile),
+      appBar: CustomAppBar(title: txt_profile),
       body: _buildProfile()
     );
   }

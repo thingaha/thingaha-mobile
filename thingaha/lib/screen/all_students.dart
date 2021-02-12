@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:thingaha/helper/custom_appbar.dart';
 import 'package:thingaha/helper/custom_cardview.dart';
-import 'package:thingaha/helper/reusable_widget.dart';
 import 'package:thingaha/screen/student_per_year.dart';
 import 'package:thingaha/util/string_constants.dart';
 
@@ -16,7 +16,7 @@ class _AllStudentsState extends State<AllStudents> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ReusableWidgets.getAppBar(txt_all_students),
+      appBar: CustomAppBar(title: txt_all_students),
       body: Container(
         margin: EdgeInsets.all(10.0),
         child: ListView.builder(
