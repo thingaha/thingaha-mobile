@@ -32,7 +32,7 @@ class _AllStudentsState extends State<AllStudents> {
   Widget _buildYearWidget(year) {
     return CustomCardView(
       onPress: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => StudentPerYear()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => StudentPerYear(year: year)));
       },
       cardView: Container(
         padding: EdgeInsets.all(20.0),
