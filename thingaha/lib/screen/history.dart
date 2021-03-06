@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:thingaha/helper/custom_appbar.dart';
 import 'package:thingaha/helper/custom_cardview.dart';
-import 'package:thingaha/screen/student_per_year.dart';
 import 'package:thingaha/util/string_constants.dart';
+
+import 'history_per_year.dart';
 
 //TODO: Get data from API
 List<String> years = ["2017", "2018", "2019", "2020"];
@@ -29,7 +30,7 @@ class _HistoryState extends State<History> {
   Widget _buildYearWidget(year) {
     return CustomCardView(
       onPress: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => StudentPerYear()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => HistoryPerYear(historyYear: year)));
       },
       cardView: Container(
         padding: EdgeInsets.all(20.0),
