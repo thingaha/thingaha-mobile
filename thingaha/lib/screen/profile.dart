@@ -18,22 +18,20 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-          title: txt_profile,
-          actionButton: [
-            IconButton(
-              icon: Icon(Icons.edit, color: Colors.white),
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile()));
-              })
-          ],
-      ),
-      body: _buildProfile()
-    );
+        // appBar: CustomAppBar(
+        //    // title: txt_profile,
+        //     actionButton: [
+        //       IconButton(
+        //         icon: Icon(Icons.edit, color: Colors.white),
+        //         onPressed: () {
+        //           Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile()));
+        //         })
+        //     ],
+        // ),
+        body: _buildProfile());
   }
 
   Widget _buildProfile() {
-
     //TODO: Get data from API
     Donor donor = Donor();
     donor.name = "Khine Khine";
@@ -45,14 +43,9 @@ class _ProfileState extends State<Profile> {
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(vertical: 40.0),
       child: Center(
-        child: Text(
-            donor.name,
-            style: GoogleFonts.merriweather(
-                textStyle: TextStyle(
-                    fontSize: 30
-                )
-            )
-        ),
+        child: Text(donor.name,
+            style:
+                GoogleFonts.merriweather(textStyle: TextStyle(fontSize: 30))),
       ),
     );
 
@@ -76,21 +69,18 @@ class _ProfileState extends State<Profile> {
       margin: EdgeInsets.symmetric(vertical: 25.0),
       child: MaterialButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ChangePassword()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => ChangePassword()));
         },
         color: kPrimaryColor,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0)
-        ),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         child: Padding(
           padding: const EdgeInsets.all(15.0),
           child: Text(
             txt_change_password,
             textAlign: TextAlign.center,
-            style: TextStyle().copyWith(
-                color: Colors.white,
-                fontSize: 16.0
-            ),
+            style: TextStyle().copyWith(color: Colors.white, fontSize: 16.0),
           ),
         ),
       ),
@@ -98,14 +88,8 @@ class _ProfileState extends State<Profile> {
 
     return Container(
       child: Column(
-        children: [
-          name,
-          info,
-          changePassword
-        ],
+        children: [name, info, changePassword],
       ),
-    )
-    ;
+    );
   }
-
 }

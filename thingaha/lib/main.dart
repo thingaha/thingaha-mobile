@@ -6,21 +6,20 @@ import 'package:thingaha/util/style_constants.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
-
   @override
   _MyAppState createState() => new _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: APP_NAME,
-      theme: ThemeData(
-        primaryColor: kPrimaryColor
-      ),
-      home: Splash()
-    );
+        title: APP_NAME,
+        theme: ThemeData(
+            primaryColor: kPrimaryColor,
+            appBarTheme: AppBarTheme(
+                backgroundColor: Colors.white,
+                titleTextStyle: TextStyle(color: kPrimaryColor))),
+        home: Splash());
   }
 }

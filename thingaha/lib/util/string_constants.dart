@@ -14,6 +14,7 @@ String txt_student_info = "Student Info";
 String txt_name = "Name";
 String txt_grade = "Grade";
 String txt_date_of_birth = "Date of birth";
+String born = "Born";
 String txt_month = "Month";
 String txt_amount = "Amount";
 String txt_date = "Date";

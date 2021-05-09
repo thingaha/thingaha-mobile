@@ -16,20 +16,19 @@ class _HistoryState extends State<History> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: txt_history),
-      body: ListView.builder(
-          itemCount: years.length,
-          itemBuilder: (context, index) {
-            return _buildYearWidget(years[index]);
-          }
-      )
-    );
+        // appBar: CustomAppBar(title: txt_history),
+        body: ListView.builder(
+            itemCount: years.length,
+            itemBuilder: (context, index) {
+              return _buildYearWidget(years[index]);
+            }));
   }
 
   Widget _buildYearWidget(year) {
     return CustomCardView(
       onPress: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => StudentPerYear()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => StudentPerYear()));
       },
       cardView: Container(
         padding: EdgeInsets.all(20.0),
@@ -41,7 +40,6 @@ class _HistoryState extends State<History> {
           ],
         ),
       ),
-    )
-    ;
+    );
   }
 }
