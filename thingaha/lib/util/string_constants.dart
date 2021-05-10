@@ -27,3 +27,8 @@ String txt_address = "Address";
 String txt_country = "Country";
 String txt_change_password = "Change Password";
 String txt_edit_profile = "Edit Profile";
+
+class StaticStrings {
+  static const String keyAccessToken = "AccessToken";
+  static const String keyLogInStatus = "isLoggedIn";
+}

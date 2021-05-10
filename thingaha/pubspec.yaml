@@ -13,6 +13,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   google_fonts: ^2.0.0
   carousel_slider: ^2.3.3
+  shared_preferences: ^2.0.5
 
 dev_dependencies:
   flutter_test:
