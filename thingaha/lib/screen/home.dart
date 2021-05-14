@@ -1,16 +1,23 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/helper/custom_carousel.dart';
+import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/model/student_donation_status.dart';
 import 'package:thingaha/helper/drawer_item.dart';
 import 'package:thingaha/screen/all_students.dart';
 import 'package:thingaha/screen/history.dart';
 import 'package:thingaha/screen/profile.dart';
+import 'package:thingaha/util/api_strings.dart';
 import 'package:thingaha/util/constants.dart';
+import 'package:thingaha/util/network.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:thingaha/helper/monthly_status.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -19,6 +26,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _screenIndex = 0;
+  String displayName = "";
   var screens = [
     Container(),
     AllStudents(),
@@ -30,8 +38,15 @@ class _HomeState extends State<Home> {
     APP_NAME,
     txt_all_students,
     txt_history,
-    txt_profile,
+    txt_settings,
   ];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getUserInfo(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,30 +54,38 @@ class _HomeState extends State<Home> {
       onWillPop: () => SystemChannels.platform
           .invokeMethod('SystemNavigator.pop'), // onBackPress => exit the app
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(titles[_screenIndex],
-              style: TextStyle(
-                color: (_screenIndex == 0) ? kPrimaryColor : Colors.black,
-                fontFamily: (_screenIndex == 0)
-                    ? GoogleFonts.pacifico().fontFamily
-                    : GoogleFonts.lato().fontFamily,
-              )),
-          iconTheme: new IconThemeData(color: Colors.white),
-          leading: Builder(
-              builder: (context) => IconButton(
-                    icon: new Icon(Icons.menu),
-                    onPressed: () => Scaffold.of(context).openDrawer(),
+
+          //drawer: _buildDrawerLayout(),
+          bottomNavigationBar: _bottomNavigationBar(),
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                  toolbarHeight: 100,
+                  automaticallyImplyLeading: false,
+                  elevation: 0,
+                  flexibleSpace: Container(
+                    padding: EdgeInsets.only(left: 32.0, top: 92.0),
+                    child: Text(titles[_screenIndex],
+                        style: TextStyle(
+                          color: (_screenIndex == 0)
+                              ? kPrimaryColor
+                              : Colors.black,
+                          fontSize: 30,
+                          fontFamily: (_screenIndex == 0)
+                              ? GoogleFonts.pacifico().fontFamily
+                              : GoogleFonts.lato().fontFamily,
+                        )),
                   )),
-        ),
-        drawer: _buildDrawerLayout(),
-        bottomNavigationBar: _bottomNavigationBar(),
-        body: (_screenIndex == 0)
-            ? SingleChildScrollView(
-                // TODO: Completely Redesign this screen. -_-
-                child: _buildCarousel(),
+              SliverFillRemaining(
+                child: (_screenIndex == 0)
+                    ? SingleChildScrollView(
+                        // TODO: Completely Redesign this screen. -_-
+                        child: _buildCarousel(),
+                      )
+                    : screens[_screenIndex],
               )
-            : screens[_screenIndex],
-      ),
+            ],
+          )),
     );
   }
 
@@ -243,5 +266,23 @@ class _HomeState extends State<Home> {
         ),
       ),
     );
+  }
+
+  getUserInfo(BuildContext context) async {
+    //int userID = context.read(userIDProvider).state;
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    int userID = localStorage.getInt(StaticStrings.keyUserID);
+    var userInfoResponse =
+        await Network().getData("${APIs.getUserByID}$userID");
+
+    // This decodes the JSON format replied from the server.
+    //List<dynamic> body = json.decode(utf8.decode(userInfoResponse.body));
+
+    // Check "https://stackoverflow.com/a/51370010" for why you need to use utf8.decode.
+    var body = json.decode(utf8.decode(userInfoResponse.bodyBytes));
+    print(utf8.decode(userInfoResponse.bodyBytes));
+
+    displayName = body['data']['user']['display_name'];
+    localStorage.setString(StaticStrings.keyDisplayName, displayName);
   }
 }

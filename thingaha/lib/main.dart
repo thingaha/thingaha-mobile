@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thingaha/screen/splash.dart';
 import 'package:thingaha/util/constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(ProviderScope(child: MyApp()));
 
 class MyApp extends StatefulWidget {
   @override

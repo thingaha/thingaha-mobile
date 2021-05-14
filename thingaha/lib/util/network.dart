@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:thingaha/util/api_strings.dart';
+import 'package:thingaha/util/string_constants.dart';
 
 class Network {
   final String _url = APIs.defaultAPIurl;
@@ -10,7 +11,7 @@ class Network {
 
   _getToken() async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
-    token = jsonDecode(localStorage.getString('token'));
+    token = localStorage.getString(StaticStrings.keyAccessToken);
   }
 
   authData(data, apiUrl) async {
@@ -19,9 +20,15 @@ class Network {
         body: jsonEncode(data), headers: _setHeaders());
   }
 
+  getData(apiUrl) async {
+    var fullUrl = _url + apiUrl;
+    await _getToken();
+    return await http.get(Uri.parse(fullUrl), headers: _setHeaders());
+  }
+
   _setHeaders() => {
         'Content-type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': 'Bearer $token'
+        'Authorization': 'Bearer $token',
       };
 }

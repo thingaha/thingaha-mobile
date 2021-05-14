@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/api_strings.dart';
 import 'package:thingaha/util/network.dart';
 import 'package:thingaha/util/string_constants.dart';
@@ -131,7 +132,7 @@ class _LoginState extends State<Login> {
 
     // This connects to the server and logs in the user.
     var loginResponse = await Network().authData(data, APIs.loginURL);
-
+    print(loginResponse.body);
     // This decodes the JSON format replied from the server.
     var body = json.decode(loginResponse.body);
 
@@ -144,9 +145,12 @@ class _LoginState extends State<Login> {
 
     // This means that there's nothing wrong and the server responds success.
     var accessToken = body['data']['access_token'];
+    var userID = body['data']['user']['id'];
     if (accessToken != null) {
       // This saves the access token in device's local storage
       localStorage.setString(StaticStrings.keyAccessToken, accessToken);
+      localStorage.setInt(StaticStrings.keyUserID, userID);
+      // context.read(userIDProvider).state.set(userID);
       localStorage.setBool(StaticStrings.keyLogInStatus, true);
     }
 

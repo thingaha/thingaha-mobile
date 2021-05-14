@@ -17,4 +17,6 @@ class APIs {
   //   }
   // }
 
+  static var getDonationListByID = 'donations/'; // Donation by ID.
+  static var getUserByID = 'users/';
 }

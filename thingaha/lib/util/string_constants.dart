@@ -8,6 +8,7 @@ String txt_welcome = "Welcome";
 String txt_my_student = "My Students";
 String txt_all_students = "All Students";
 String txt_profile = "Profile";
+String txt_settings = "Settings";
 String txt_logout = "Logout";
 String txt_history = "History";
 String txt_student_info = "Student Info";
@@ -31,4 +32,6 @@ String txt_edit_profile = "Edit Profile";
 class StaticStrings {
   static const String keyAccessToken = "AccessToken";
   static const String keyLogInStatus = "isLoggedIn";
+  static const String keyUserID = "userID";
+  static const String keyDisplayName = "displayName";
 }
