@@ -16,23 +16,24 @@ class _AllStudentsState extends State<AllStudents> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: txt_all_students),
-      body: Container(
-        margin: EdgeInsets.all(10.0),
-        child: ListView.builder(
+        //appBar: CustomAppBar(title: txt_all_students),
+        body: Container(
+      margin: EdgeInsets.all(10.0),
+      child: ListView.builder(
           itemCount: years.length,
           itemBuilder: (context, index) {
             return _buildYearWidget(years[index]);
-          }
-        ),
-      )
-    );
+          }),
+    ));
   }
 
   Widget _buildYearWidget(year) {
     return CustomCardView(
       onPress: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => StudentPerYear(year: year)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => StudentPerYear(year: year)));
       },
       cardView: Container(
         padding: EdgeInsets.all(20.0),
@@ -44,7 +45,6 @@ class _AllStudentsState extends State<AllStudents> {
           ],
         ),
       ),
-    )
-    ;
+    );
   }
 }

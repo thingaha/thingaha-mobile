@@ -8,12 +8,14 @@ String txt_welcome = "Welcome";
 String txt_my_student = "My Students";
 String txt_all_students = "All Students";
 String txt_profile = "Profile";
+String txt_settings = "Settings";
 String txt_logout = "Logout";
 String txt_history = "History";
 String txt_student_info = "Student Info";
 String txt_name = "Name";
 String txt_grade = "Grade";
 String txt_date_of_birth = "Date of birth";
+String born = "Born";
 String txt_month = "Month";
 String txt_amount = "Amount";
 String txt_date = "Date";
@@ -26,3 +28,10 @@ String txt_address = "Address";
 String txt_country = "Country";
 String txt_change_password = "Change Password";
 String txt_edit_profile = "Edit Profile";
+
+class StaticStrings {
+  static const String keyAccessToken = "AccessToken";
+  static const String keyLogInStatus = "isLoggedIn";
+  static const String keyUserID = "userID";
+  static const String keyDisplayName = "displayName";
+}

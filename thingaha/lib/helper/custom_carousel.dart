@@ -1,7 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
-
 int _current = 0;
 
 class CustomCarousel extends StatefulWidget {
@@ -14,11 +13,10 @@ class CustomCarousel extends StatefulWidget {
 }
 
 class _CustomCarouselState extends State<CustomCarousel> {
-
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
-    double carouselHeight = height - 110;
+    double carouselHeight = height - 300;
 
     return Column(
       children: [
@@ -34,9 +32,7 @@ class _CustomCarouselState extends State<CustomCarousel> {
                   setState(() {
                     _current = index;
                   });
-                }
-            )
-        ),
+                })),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: widget.items.map((item) {
@@ -55,8 +51,6 @@ class _CustomCarouselState extends State<CustomCarousel> {
           }).toList(),
         ),
       ],
-    )
-    ;
+    );
   }
-  
 }
