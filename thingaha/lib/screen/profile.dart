@@ -1,12 +1,16 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/helper/custom_cardview.dart';
 import 'package:thingaha/helper/title_and_text_with_column.dart';
 import 'package:thingaha/model/donor.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/screen/change_password.dart';
+import 'package:thingaha/screen/login.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:circle_flags/circle_flags.dart';
@@ -135,12 +139,25 @@ class _ProfileState extends State<Profile> {
       ),
     );
 
-    Widget settingsListItem(
-        icon, iconBackgroundColor, iconColor, title, sub, isSwitch) {
+    Widget settingsListItem(icon, iconBackgroundColor, iconColor, title, sub,
+        bool isSwitch, String onTapEvent) {
       var _darkmode = false;
       return Padding(
         padding: EdgeInsets.only(left: 16.0, top: 12.0, right: 16.0),
         child: ListTile(
+            onTap: () {
+              final scaffold = ScaffoldMessenger.of(context);
+              scaffold.showSnackBar(
+                SnackBar(
+                  content: Text('Pressed $title (* ^ ω ^)'),
+                  behavior: SnackBarBehavior.floating,
+                  duration: Duration(seconds: 1),
+                  //action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
+                ),
+              );
+
+              if (onTapEvent == "logout") logout();
+            },
             leading: CircleAvatar(
               backgroundColor: iconBackgroundColor,
               child: Icon(
@@ -199,13 +216,21 @@ class _ProfileState extends State<Profile> {
               padding: EdgeInsets.only(left: 32.0, top: 32.0, bottom: 12.0),
               child: Text(txt_settings)),
           settingsListItem(Icons.vpn_key_rounded, Colors.green[50],
-              Colors.green, "Password", "", false),
+              Colors.green, "Password", "", false, null),
           settingsListItem(Icons.language_rounded, Colors.blue[50], Colors.blue,
-              "Language", "English", false),
-          settingsListItem(Icons.notifications_active_rounded,
-              Colors.orange[50], Colors.orange, "Notificaions", "", false),
+              "Language", "English", false, null),
+          settingsListItem(
+              Icons.notifications_active_rounded,
+              Colors.orange[50],
+              Colors.orange,
+              "Notificaions",
+              "",
+              false,
+              null),
           settingsListItem(Icons.lightbulb_outlined, Colors.purple[50],
-              Colors.purple, "DarkMode", "Off", true),
+              Colors.purple, "DarkMode", "Off", true, null),
+          settingsListItem(Icons.logout, Colors.cyan[50], Colors.cyan, "Logout",
+              "", false, "logout"),
         ],
       ),
     );
@@ -222,5 +247,16 @@ class _ProfileState extends State<Profile> {
         ],
       ),
     );
+  }
+
+  logout() async {
+    print("This works");
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    localStorage.setString(StaticStrings.keyAccessToken, "");
+    localStorage.setBool(StaticStrings.keyLogInStatus, false);
+    localStorage.setInt(StaticStrings.keyUserID, 0);
+
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => Login()));
   }
 }

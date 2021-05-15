@@ -17,6 +17,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final pwdController = TextEditingController();
@@ -72,11 +73,17 @@ class _LoginState extends State<Login> {
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
           ),
         ),
-        child: Text(
-          txt_login,
-          textAlign: TextAlign.center,
-          style: TextStyle().copyWith(color: Colors.white, fontSize: 16.0),
-        ),
+        child: (_isLoading)
+            ? CircularProgressIndicator(
+                backgroundColor: Colors.white,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+              )
+            : Text(
+                txt_login,
+                textAlign: TextAlign.center,
+                style:
+                    TextStyle().copyWith(color: Colors.white, fontSize: 16.0),
+              ),
       ),
     );
 
@@ -124,7 +131,38 @@ class _LoginState extends State<Login> {
     );
   }
 
+  showErrorDialog(context, title, message) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   login(context, email, password) async {
+    setState(() {
+      _isLoading = true;
+    });
+
     SharedPreferences localStorage = await SharedPreferences.getInstance();
 
     //var data = {"email_or_username": "moemoe@gmail.com", "password": "123"};
@@ -132,7 +170,6 @@ class _LoginState extends State<Login> {
 
     // This connects to the server and logs in the user.
     var loginResponse = await Network().authData(data, APIs.loginURL);
-    print(loginResponse.body);
     // This decodes the JSON format replied from the server.
     var body = json.decode(loginResponse.body);
 
@@ -141,7 +178,14 @@ class _LoginState extends State<Login> {
 
     // If a credential or something is wrong, error will throw.
     // TODO: Implement Dialog box to show the error.
-    if (body['errors'] != null) return;
+    if (body['errors'] != null) {
+      showErrorDialog(context, body['errors'][0]['reason'],
+          body['errors'][0]['description']);
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
 
     // This means that there's nothing wrong and the server responds success.
     var accessToken = body['data']['access_token'];
@@ -154,8 +198,12 @@ class _LoginState extends State<Login> {
       localStorage.setBool(StaticStrings.keyLogInStatus, true);
     }
 
+    setState(() {
+      _isLoading = false;
+    });
+
     // If everything that has to be done is done, we go to home screen.
-    Navigator.push(context,
+    Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (context) => Home())); //Show error dialog.
   }
 }

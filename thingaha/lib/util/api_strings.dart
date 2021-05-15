@@ -1,5 +1,5 @@
 class APIs {
-  static var defaultAPIurl = 'https://www.thingaha.org/api/v1/';
+  static var defaultAPIurl = 'https://app.thingaha.org/api/v1/';
 
   // POST
   // {

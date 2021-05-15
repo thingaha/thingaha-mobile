@@ -41,11 +41,16 @@ class _HomeState extends State<Home> {
     txt_settings,
   ];
 
+  ScrollController _scrollController;
+  bool _isScrolled = false;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getUserInfo(context);
+    _scrollController = ScrollController();
+    _scrollController.addListener(_listenToScrollChange);
   }
 
   @override
@@ -54,27 +59,55 @@ class _HomeState extends State<Home> {
       onWillPop: () => SystemChannels.platform
           .invokeMethod('SystemNavigator.pop'), // onBackPress => exit the app
       child: Scaffold(
-
+          backgroundColor: Colors.white,
           //drawer: _buildDrawerLayout(),
           bottomNavigationBar: _bottomNavigationBar(),
           body: CustomScrollView(
+            controller: _scrollController,
             slivers: [
               SliverAppBar(
-                  toolbarHeight: 100,
-                  automaticallyImplyLeading: false,
-                  elevation: 0,
-                  flexibleSpace: Container(
-                    padding: EdgeInsets.only(left: 32.0, top: 92.0),
+                  pinned: true,
+                  expandedHeight: 100,
+                  title: AnimatedOpacity(
+                    duration: Duration(milliseconds: 300),
+                    opacity: _isScrolled ? 1.0 : 0.0,
+                    curve: Curves.ease,
                     child: Text(titles[_screenIndex],
                         style: TextStyle(
                           color: (_screenIndex == 0)
                               ? kPrimaryColor
                               : Colors.black,
-                          fontSize: 30,
+                          fontSize: 23,
+                          fontWeight: (_screenIndex == 0)
+                              ? FontWeight.normal
+                              : FontWeight.bold,
                           fontFamily: (_screenIndex == 0)
                               ? GoogleFonts.pacifico().fontFamily
                               : GoogleFonts.lato().fontFamily,
                         )),
+                  ),
+                  automaticallyImplyLeading: false,
+                  elevation: (_isScrolled) ? 1.5 : 0,
+                  flexibleSpace: AnimatedOpacity(
+                    duration: Duration(milliseconds: 300),
+                    opacity: _isScrolled ? 0.0 : 1.0,
+                    curve: Curves.ease,
+                    child: Container(
+                      padding: EdgeInsets.only(left: 32.0, top: 92.0),
+                      child: Text(titles[_screenIndex],
+                          style: TextStyle(
+                            color: (_screenIndex == 0)
+                                ? kPrimaryColor
+                                : Colors.black87,
+                            fontWeight: (_screenIndex == 0)
+                                ? FontWeight.normal
+                                : FontWeight.bold,
+                            fontSize: 30,
+                            fontFamily: (_screenIndex == 0)
+                                ? GoogleFonts.pacifico().fontFamily
+                                : GoogleFonts.lato().fontFamily,
+                          )),
+                    ),
                   )),
               SliverFillRemaining(
                 child: (_screenIndex == 0)
@@ -87,6 +120,18 @@ class _HomeState extends State<Home> {
             ],
           )),
     );
+  }
+
+  void _listenToScrollChange() {
+    if (_scrollController.offset >= 48.0) {
+      setState(() {
+        _isScrolled = true;
+      });
+    } else {
+      setState(() {
+        _isScrolled = false;
+      });
+    }
   }
 
   Widget _buildCarousel() {
@@ -208,9 +253,7 @@ class _HomeState extends State<Home> {
             IconButton(
                 icon: Icon(
                   // This changes icon from outlined to filled when user selected the tab.
-                  (_screenIndex == 0)
-                      ? Icons.home_rounded
-                      : Icons.home_outlined,
+                  (_screenIndex == 0) ? Icons.dns_rounded : Icons.dns_outlined,
                   // This changes the icon color when user selected the tab.
                   color: (_screenIndex == 0) ? kPrimaryColor : Colors.black,
                 ),
@@ -252,8 +295,8 @@ class _HomeState extends State<Home> {
             IconButton(
               icon: Icon(
                 (_screenIndex == 3)
-                    ? Icons.person_pin_circle_rounded
-                    : Icons.person_pin_circle_outlined,
+                    ? Icons.account_circle_rounded
+                    : Icons.account_circle_outlined,
                 color: (_screenIndex == 3) ? kPrimaryColor : Colors.black,
               ),
               onPressed: () {
