@@ -1,10 +1,13 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/helper/custom_carousel.dart';
+import 'package:thingaha/helper/slivertabs.dart';
+import 'package:thingaha/model/donatordonations.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/model/student_donation_status.dart';
 import 'package:thingaha/helper/drawer_item.dart';
@@ -27,6 +30,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _screenIndex = 0;
   String displayName = "";
+  int _selectedTabIndex = 0;
   var screens = [
     Container(),
     AllStudents(),
@@ -35,7 +39,7 @@ class _HomeState extends State<Home> {
   ];
 
   var titles = [
-    APP_NAME,
+    txt_donations,
     txt_all_students,
     txt_history,
     txt_settings,
@@ -48,77 +52,133 @@ class _HomeState extends State<Home> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getUserInfo(context);
+    context.read(fetchDisplayNamefromLocalProvider);
+    context.read(fetchDonationList);
     _scrollController = ScrollController();
     _scrollController.addListener(_listenToScrollChange);
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => SystemChannels.platform
-          .invokeMethod('SystemNavigator.pop'), // onBackPress => exit the app
-      child: Scaffold(
-          backgroundColor: Colors.white,
-          //drawer: _buildDrawerLayout(),
-          bottomNavigationBar: _bottomNavigationBar(),
-          body: CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverAppBar(
-                  pinned: true,
-                  expandedHeight: 100,
-                  title: AnimatedOpacity(
-                    duration: Duration(milliseconds: 300),
-                    opacity: _isScrolled ? 1.0 : 0.0,
-                    curve: Curves.ease,
-                    child: Text(titles[_screenIndex],
-                        style: TextStyle(
-                          color: (_screenIndex == 0)
-                              ? kPrimaryColor
-                              : Colors.black,
-                          fontSize: 23,
-                          fontWeight: (_screenIndex == 0)
-                              ? FontWeight.normal
-                              : FontWeight.bold,
-                          fontFamily: (_screenIndex == 0)
-                              ? GoogleFonts.pacifico().fontFamily
-                              : GoogleFonts.lato().fontFamily,
-                        )),
-                  ),
-                  automaticallyImplyLeading: false,
-                  elevation: (_isScrolled) ? 1.5 : 0,
-                  flexibleSpace: AnimatedOpacity(
-                    duration: Duration(milliseconds: 300),
-                    opacity: _isScrolled ? 0.0 : 1.0,
-                    curve: Curves.ease,
-                    child: Container(
-                      padding: EdgeInsets.only(left: 32.0, top: 92.0),
-                      child: Text(titles[_screenIndex],
-                          style: TextStyle(
-                            color: (_screenIndex == 0)
-                                ? kPrimaryColor
-                                : Colors.black87,
-                            fontWeight: (_screenIndex == 0)
-                                ? FontWeight.normal
-                                : FontWeight.bold,
-                            fontSize: 30,
-                            fontFamily: (_screenIndex == 0)
-                                ? GoogleFonts.pacifico().fontFamily
-                                : GoogleFonts.lato().fontFamily,
-                          )),
-                    ),
-                  )),
-              SliverFillRemaining(
-                child: (_screenIndex == 0)
-                    ? SingleChildScrollView(
-                        // TODO: Completely Redesign this screen. -_-
-                        child: _buildCarousel(),
-                      )
-                    : screens[_screenIndex],
-              )
-            ],
-          )),
+    return Consumer(
+      builder: (context, watch, child) {
+        AsyncValue<DonatorDonations> donatorDonations =
+            watch(fetchDonationList);
+
+        if (donatorDonations != null) {
+          return donatorDonations?.when(
+              loading: () => Scaffold(
+                  body: Center(child: const CircularProgressIndicator())),
+              error: (err, stack) => Text('Error: $err'),
+              data: (donatorDonations) {
+                List<Donation> donations = donatorDonations.data.donations;
+                var studentListInfo = groupBy(donations, (e) {
+                  return e.student.name;
+                });
+                var studentItem = [];
+                var studentNameList = studentListInfo.keys.toList();
+                studentListInfo.keys.forEach((key) {
+                  studentItem = donations
+                      .where((data) => data.student.name == key)
+                      .toList();
+                });
+                List.generate(studentItem.length,
+                    (index) => print(studentItem[index].student.name));
+                return DefaultTabController(
+                    length: studentNameList.length,
+                    child: Builder(
+                      builder: (BuildContext context) {
+                        return Scaffold(
+                            backgroundColor: Colors.white,
+                            //drawer: _buildDrawerLayout(),
+                            bottomNavigationBar: _bottomNavigationBar(),
+                            body: NestedScrollView(
+                              controller: _scrollController,
+                              headerSliverBuilder: (context, value) {
+                                return [
+                                  SliverAppBar(
+                                      pinned: true,
+                                      expandedHeight: 100,
+                                      title: AnimatedOpacity(
+                                        duration: Duration(milliseconds: 300),
+                                        opacity: _isScrolled ? 1.0 : 0.0,
+                                        curve: Curves.ease,
+                                        child: Text(titles[_screenIndex],
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 23,
+                                              fontWeight: FontWeight.bold,
+                                              fontFamily:
+                                                  GoogleFonts.lato().fontFamily,
+                                            )),
+                                      ),
+                                      automaticallyImplyLeading: false,
+                                      // elevation: (_isScrolled) ? 1.5 : 0,
+                                      elevation: 0,
+                                      flexibleSpace: AnimatedOpacity(
+                                        duration: Duration(milliseconds: 300),
+                                        opacity: _isScrolled ? 0.0 : 1.0,
+                                        curve: Curves.ease,
+                                        child: Container(
+                                          padding: EdgeInsets.only(
+                                              left: 32.0, top: 92.0),
+                                          child: Text(titles[_screenIndex],
+                                              style: TextStyle(
+                                                color: Colors.black87,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 30,
+                                                fontFamily: GoogleFonts.lato()
+                                                    .fontFamily,
+                                              )),
+                                        ),
+                                      )),
+                                  (_screenIndex == 0)
+                                      ? SliverPersistentHeader(
+                                          delegate: SliverAppBarDelegate(
+                                            TabBar(
+                                              isScrollable: true,
+                                              indicatorSize:
+                                                  TabBarIndicatorSize.label,
+                                              indicatorColor: kPrimaryColor,
+                                              tabs: List.generate(
+                                                  studentNameList.length,
+                                                  (index) => Tab(
+                                                      child: Text(
+                                                          studentNameList[
+                                                              index]))),
+                                            ),
+                                          ),
+                                          pinned: true,
+                                        )
+                                      : SliverToBoxAdapter(
+                                          child: Container(),
+                                        ),
+                                ];
+                              },
+                              body: (_screenIndex == 0)
+                                  ? TabBarView(
+                                      children: [
+                                        SingleChildScrollView(
+                                          // TODO: Completely Redesign this screen. -_-
+                                          child: _buildHome(context, donations,
+                                              studentNameList),
+                                        ),
+                                        SingleChildScrollView(
+                                          // TODO: Completely Redesign this screen. -_-
+                                          child: _buildHome(context, donations,
+                                              studentNameList),
+                                        ),
+                                      ],
+                                    )
+                                  : screens[_screenIndex],
+                            ));
+                      },
+                    ));
+              });
+        } else {
+          return Scaffold();
+        }
+      },
     );
   }
 
@@ -132,6 +192,177 @@ class _HomeState extends State<Home> {
         _isScrolled = false;
       });
     }
+  }
+
+  Widget _buildHome(context, donations, studentNameList) {
+    int _currentPageIndex;
+    var donationsForCurrentPage;
+
+    _currentPageIndex = DefaultTabController.of(context).index;
+    donationsForCurrentPage = donations
+        .where(
+            (data) => data.student.name == studentNameList[_currentPageIndex])
+        .toList();
+    DefaultTabController.of(context).addListener(() {
+      setState(() {});
+    });
+
+    return Container(
+      child: Column(
+        children: [
+          //StudentInfo
+          Container(
+            height: 200,
+            width: double.infinity,
+            margin: EdgeInsets.all(32.0),
+            decoration: BoxDecoration(
+                color: Colors.black,
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey[200],
+                    offset: Offset(0, 1),
+                  )
+                ]),
+          ),
+
+          Container(
+            child: Table(
+                defaultColumnWidth: FlexColumnWidth(1.0),
+                border: TableBorder.symmetric(
+                    inside: BorderSide(
+                  color: Colors.grey[200],
+                )),
+                children:
+                    List.generate(donationsForCurrentPage.length + 1, (index) {
+                  if (index == 0) {
+                    return TableRow(children: [
+                      Container(
+                        margin: EdgeInsets.only(bottom: 16.0, left: 32.0),
+                        child: Text(
+                          "Month",
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        "MMK Amount",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.only(bottom: 16.0, right: 32.0),
+                        child: Text(
+                          "Status",
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ]);
+                  } else {
+                    return TableRow(children: [
+                      Container(
+                        padding: EdgeInsets.only(top: 5.0, left: 32.0),
+                        child: Text(
+                          donationsForCurrentPage[index - 1].month,
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      // Container(
+                      //   child: Text(
+                      //     donationsForCurrentPage[index - 1].student.name,
+                      //     //donations[index].mmkAmount.toString(),
+                      //     textAlign: TextAlign.center,
+                      //   ),
+                      // ),
+                      Container(
+                        padding: EdgeInsets.only(top: 5.0),
+                        child: Text(
+                          donationsForCurrentPage[index - 1]
+                              .mmkAmount
+                              .toString(),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(top: 5.0, right: 32.0),
+                        child: Text(
+                          donationsForCurrentPage[index - 1].status,
+                          textAlign: TextAlign.right,
+                        ),
+                      ),
+                    ]);
+                  }
+                })),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHomeScreen() {
+    return Consumer(
+      builder: (context, ref, child) {
+        AsyncValue<DonatorDonations> donatorDonations = ref(fetchDonationList);
+
+        // Honestly, I don't know why I wrote like this either. But it works. ¯\_(ツ)_/¯
+        if (donatorDonations != null) {
+          return donatorDonations?.when(
+              loading: () => Center(child: const CircularProgressIndicator()),
+              error: (err, stack) => Text('Error: $err'),
+              data: (donatorDonations) {
+                List<Donation> donations = donatorDonations.data.donations;
+                var months = donations.map((e) => e.month).toList();
+                var mmk = donations.map((e) => e.mmkAmount).toList();
+                var status = donations.map((e) => e.status).toList();
+                var studentName = donations.map((e) => e.student.name).toList();
+
+                var studentListInfo = groupBy(donations, (e) {
+                  return e.student.name;
+                });
+
+                //
+                var studentList =
+                    studentListInfo.keys.map((key) => key).toList();
+                print(studentList);
+                return Container(
+                  child: Column(
+                    children: List.generate(
+                      months.length,
+                      (index) {
+                        return Container(
+                          child: Card(
+                            child: Column(
+                              children: [
+                                Text(donations[index].month),
+                                Text(months[index]),
+                                Text(mmk[index].toString()),
+                                Text(status[index]),
+                                Text(studentName[index]),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              });
+        } else {
+          return Container(
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+      },
+    );
   }
 
   Widget _buildCarousel() {
@@ -242,6 +473,58 @@ class _HomeState extends State<Home> {
   }
 
   Widget _bottomNavigationBar() {
+    bottomAppBarItem(itemIndex) {
+      return SizedBox(
+        width: 168,
+        child: InkWell(
+            customBorder: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Container(
+              padding: EdgeInsets.only(top: 7.0, bottom: 7.5),
+              child: Column(
+                children: [
+                  Icon(
+                    // This changes icon from outlined to filled when user selected the tab.
+                    (itemIndex == 0)
+                        ? (_screenIndex == 0)
+                            ? Icons.dns_rounded
+                            : Icons.dns_outlined
+                        : (itemIndex == 1)
+                            ? (_screenIndex == 1)
+                                ? Icons.people_alt_rounded
+                                : Icons.people_alt_outlined
+                            : (itemIndex == 2)
+                                ? (_screenIndex == 2)
+                                    ? Icons.history_edu_rounded
+                                    : Icons.history_edu_outlined
+                                : (_screenIndex == 3)
+                                    ? Icons.account_circle_rounded
+                                    : Icons.account_circle_outlined,
+                    // This changes the icon color when user selected the tab.
+                    color: (_screenIndex == itemIndex)
+                        ? kPrimaryColor
+                        : Colors.black,
+                  ),
+                  Text(
+                    titles[itemIndex],
+                    style: TextStyle(
+                      color: (_screenIndex == itemIndex)
+                          ? kPrimaryColor
+                          : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            onTap: () {
+              setState(() {
+                _screenIndex = itemIndex;
+              });
+            }),
+      );
+    }
+
     return BottomAppBar(
       child: Container(
         height: 56, //Bottom AppBar Height is 56 ... as per material guideline.
@@ -250,82 +533,20 @@ class _HomeState extends State<Home> {
               .spaceEvenly, // this places icons evenly across the screen.
           children: [
             // My Student Tab Icon.
-            IconButton(
-                icon: Icon(
-                  // This changes icon from outlined to filled when user selected the tab.
-                  (_screenIndex == 0) ? Icons.dns_rounded : Icons.dns_outlined,
-                  // This changes the icon color when user selected the tab.
-                  color: (_screenIndex == 0) ? kPrimaryColor : Colors.black,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _screenIndex = 0;
-                  });
-                }),
-
-            // All Students Tab Icon.
-            IconButton(
-                icon: Icon(
-                  (_screenIndex == 1)
-                      ? Icons.people_alt_rounded
-                      : Icons.people_alt_outlined,
-                  color: (_screenIndex == 1) ? kPrimaryColor : Colors.black,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _screenIndex = 1;
-                  });
-                }),
-
-            // History Tab Icon
-            IconButton(
-                icon: Icon(
-                  (_screenIndex == 2)
-                      ? Icons.history_edu_rounded
-                      : Icons.history_edu_outlined,
-                  color: (_screenIndex == 2) ? kPrimaryColor : Colors.black,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _screenIndex = 2;
-                  });
-                }),
-
-            // Profile Tab Icon
-            IconButton(
-              icon: Icon(
-                (_screenIndex == 3)
-                    ? Icons.account_circle_rounded
-                    : Icons.account_circle_outlined,
-                color: (_screenIndex == 3) ? kPrimaryColor : Colors.black,
-              ),
-              onPressed: () {
-                setState(() {
-                  _screenIndex = 3;
-                });
-              },
+            Container(
+              width: 20,
             ),
+            Expanded(child: bottomAppBarItem(0)),
+            Expanded(child: bottomAppBarItem(1)),
+            Expanded(child: bottomAppBarItem(2)),
+            Expanded(child: bottomAppBarItem(3)),
+            Container(
+              width: 20,
+            ),
+            // All Students Tab Icon.
           ],
         ),
       ),
     );
-  }
-
-  getUserInfo(BuildContext context) async {
-    //int userID = context.read(userIDProvider).state;
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
-    int userID = localStorage.getInt(StaticStrings.keyUserID);
-    var userInfoResponse =
-        await Network().getData("${APIs.getUserByID}$userID");
-
-    // This decodes the JSON format replied from the server.
-    //List<dynamic> body = json.decode(utf8.decode(userInfoResponse.body));
-
-    // Check "https://stackoverflow.com/a/51370010" for why you need to use utf8.decode.
-    var body = json.decode(utf8.decode(userInfoResponse.bodyBytes));
-    print(utf8.decode(userInfoResponse.bodyBytes));
-
-    displayName = body['data']['user']['display_name'];
-    localStorage.setString(StaticStrings.keyDisplayName, displayName);
   }
 }

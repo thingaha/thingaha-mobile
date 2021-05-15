@@ -9,6 +9,7 @@ import 'package:thingaha/helper/custom_cardview.dart';
 import 'package:thingaha/helper/title_and_text_with_column.dart';
 import 'package:thingaha/model/donor.dart';
 import 'package:thingaha/model/providers.dart';
+import 'package:thingaha/model/userinfo.dart';
 import 'package:thingaha/screen/change_password.dart';
 import 'package:thingaha/screen/login.dart';
 import 'package:thingaha/util/string_constants.dart';
@@ -51,53 +52,63 @@ class _ProfileState extends State<Profile> {
       margin: EdgeInsets.only(top: 16.0, bottom: 32.0),
       child: Consumer(
         builder: (context, watch, child) {
-          var displayName =
-              watch(fetchDisplayNamefromLocalProvider).data?.value;
-
-          var userInfo = watch(fetchUserDetail).data?.value;
+          AsyncValue<UserInfo> userInfo = watch(fetchUserDetail).data;
           var name = "";
           var email = "";
           var username = "";
           var country = "";
           var address = "";
           if (userInfo != null) {
-            name = userInfo.data.user.displayName;
-            email = userInfo.data.user.email;
-            username = userInfo.data.user.username;
-            country = userInfo.data.user.country;
-            address = userInfo.data.user.formattedAddress;
-          }
-
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(
-                  left: 16.0,
-                  right: 16.0,
-                ),
-                child: ListTile(
-                    leading: CircleFlag(country, size: 38),
-                    title: Text(
-                      (displayName != null) ? "$name ($username)" : "",
-                      style: TextStyle(
-                          fontFamily: GoogleFonts.firaSans().fontFamily),
-                    ),
-                    trailing: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        color: Colors.grey[50],
-                        width: 50,
-                        height: 46,
-                        child: Icon(
-                          Icons.chevron_right_rounded,
-                          size: 30,
-                        ),
+            return userInfo?.when(
+              loading: () => Center(child: const CircularProgressIndicator()),
+              error: (err, stack) => Text('Error: $err'),
+              data: (userInfo) {
+                name = userInfo.data.user.displayName;
+                email = userInfo.data.user.email;
+                username = userInfo.data.user.username;
+                country = userInfo.data.user.country;
+                address = userInfo.data.user.formattedAddress;
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: 16.0,
+                        right: 16.0,
                       ),
-                    )),
+                      child: ListTile(
+                          leading: CircleFlag(
+                              (country != "") ? country : "united_nations",
+                              size: 38),
+                          title: Text(
+                            (name != null) ? "$name ($username)" : "",
+                            style: TextStyle(
+                                fontFamily: GoogleFonts.firaSans().fontFamily),
+                          ),
+                          trailing: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              color: Colors.grey[50],
+                              width: 50,
+                              height: 46,
+                              child: Icon(
+                                Icons.chevron_right_rounded,
+                                size: 30,
+                              ),
+                            ),
+                          )),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(),
               ),
-            ],
-          );
+            );
+          }
         },
       ),
     );
@@ -215,18 +226,12 @@ class _ProfileState extends State<Profile> {
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.only(left: 32.0, top: 32.0, bottom: 12.0),
               child: Text(txt_settings)),
-          settingsListItem(Icons.vpn_key_rounded, Colors.green[50],
-              Colors.green, "Password", "", false, null),
+          settingsListItem(Icons.info_rounded, Colors.pink[50], Colors.pink,
+              "About Us", "", false, null),
           settingsListItem(Icons.language_rounded, Colors.blue[50], Colors.blue,
               "Language", "English", false, null),
-          settingsListItem(
-              Icons.notifications_active_rounded,
-              Colors.orange[50],
-              Colors.orange,
-              "Notificaions",
-              "",
-              false,
-              null),
+          settingsListItem(Icons.vpn_key_rounded, Colors.green[50],
+              Colors.green, "Password", "", false, null),
           settingsListItem(Icons.lightbulb_outlined, Colors.purple[50],
               Colors.purple, "DarkMode", "Off", true, null),
           settingsListItem(Icons.logout, Colors.cyan[50], Colors.cyan, "Logout",
