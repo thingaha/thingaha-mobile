@@ -18,6 +18,11 @@ dependencies:
   circle_flags: ^0.0.2
   collection: ^1.15.0
   md2_tab_indicator: ^1.0.2
+  intl: ^0.17.0
+  flutter_svg: ^0.22.0
+  loading_indicator: ^2.0.1
+  flutter_sticky_header: ^0.6.0
+  sticky_headers: ^0.2.0
 
 dev_dependencies:
   flutter_test:

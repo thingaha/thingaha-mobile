@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/api_strings.dart';
@@ -31,19 +32,27 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () => SystemChannels.platform
-            .invokeMethod('SystemNavigator.pop'), // onBackPress => exit the app
+    return GestureDetector(
+        onTap: () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+        },
         child: SingleChildScrollView(
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            padding: EdgeInsets.all(20.0),
+            padding: EdgeInsets.only(
+                top: 20.0, bottom: 10.0, left: 20.0, right: 20.0),
             color: Colors.white,
             child: Column(
               children: <Widget>[
                 Image.asset('images/logo.png'),
-                _buildLoginFields()
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32.0),
+                    child: _buildLoginFields())
               ],
             ),
           ),
@@ -74,9 +83,13 @@ class _LoginState extends State<Login> {
           ),
         ),
         child: (_isLoading)
-            ? CircularProgressIndicator(
-                backgroundColor: Colors.white,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+            ? SizedBox(
+                width: 32,
+                height: 32,
+                child: LoadingIndicator(
+                  indicatorType: Indicator.ballClipRotatePulse,
+                  color: Colors.white,
+                ),
               )
             : Text(
                 txt_login,
@@ -95,7 +108,20 @@ class _LoginState extends State<Login> {
           SizedBox(height: 20),
           passwordTextField,
           SizedBox(height: 30),
-          loginButton
+          loginButton,
+          (_isLoading)
+              ? Container(
+                  margin: EdgeInsets.only(top: 32.0),
+                  child: Material(
+                    child: Text(
+                      "Shovelling coal into the server ...",
+                      style: TextStyle(
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                )
+              : Container(),
         ],
       ),
     );
@@ -111,7 +137,9 @@ class _LoginState extends State<Login> {
           return null;
         },
         controller: (isPassword) ? pwdController : emailController,
-        keyboardType: TextInputType.emailAddress,
+        keyboardType: (isPassword)
+            ? TextInputType.emailAddress
+            : TextInputType.visiblePassword,
         decoration: InputDecoration(
           labelText: label,
           contentPadding: EdgeInsets.only(left: 10.0, bottom: 0.0),

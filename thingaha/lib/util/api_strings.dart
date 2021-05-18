@@ -20,4 +20,6 @@ class APIs {
   static var getDonationListByID = 'donations/'; // Donation by ID.
   static var getUserByID = 'users/';
   static var getDonatorDonations = "donator_donations";
+  static var getAttendance = 'attendances';
+  static var getAttendancebyPage = 'attendances?page=';
 }

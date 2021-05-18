@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/helper/custom_cardview.dart';
 import 'package:thingaha/helper/title_and_text_with_column.dart';
@@ -22,6 +23,29 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
+  ScrollController _scrollController;
+  bool _isScrolled = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_listenToScrollChange);
+  }
+
+  void _listenToScrollChange() {
+    if (_scrollController.offset >= 48.0) {
+      setState(() {
+        _isScrolled = true;
+      });
+    } else {
+      setState(() {
+        _isScrolled = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +84,22 @@ class _ProfileState extends State<Profile> {
           var address = "";
           if (userInfo != null) {
             return userInfo?.when(
-              loading: () => Center(child: const CircularProgressIndicator()),
+              loading: () => Row(
+                children: [
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: LoadingIndicator(
+                      indicatorType: Indicator.lineScale,
+                      color: kPrimaryColor,
+                    ),
+                  ),
+                  Text(
+                    "Waiting Daenerys say all her titles...",
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
               error: (err, stack) => Text('Error: $err'),
               data: (userInfo) {
                 name = userInfo.data.user.displayName;
@@ -68,44 +107,109 @@ class _ProfileState extends State<Profile> {
                 username = userInfo.data.user.username;
                 country = userInfo.data.user.country;
                 address = userInfo.data.user.formattedAddress;
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: 16.0,
-                        right: 16.0,
-                      ),
-                      child: ListTile(
-                          leading: CircleFlag(
-                              (country != "") ? country : "united_nations",
-                              size: 38),
-                          title: Text(
-                            (name != null) ? "$name ($username)" : "",
-                            style: TextStyle(
-                                fontFamily: GoogleFonts.firaSans().fontFamily),
+                return Flexible(
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      SliverAppBar(
+                          pinned: true,
+                          backgroundColor:
+                              _isScrolled ? kAppBarLightColor : Colors.white,
+                          expandedHeight: 120,
+                          title: AnimatedOpacity(
+                            duration: Duration(milliseconds: 300),
+                            opacity: _isScrolled ? 1.0 : 0.0,
+                            curve: Curves.ease,
+                            child: Text("Settings",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 23,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: GoogleFonts.lato().fontFamily,
+                                )),
                           ),
-                          trailing: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
+                          automaticallyImplyLeading: false,
+                          elevation: (_isScrolled) ? 1.5 : 0,
+                          flexibleSpace: AnimatedOpacity(
+                            duration: Duration(milliseconds: 300),
+                            opacity: _isScrolled ? 0.0 : 1.0,
+                            curve: Curves.ease,
                             child: Container(
-                              color: Colors.grey[50],
-                              width: 50,
-                              height: 46,
-                              child: Icon(
-                                Icons.chevron_right_rounded,
-                                size: 30,
-                              ),
+                              padding: EdgeInsets.only(
+                                  left: 32.0, top: 92.0, right: 32.0),
+                              child: Text("Settings",
+                                  style: TextStyle(
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 30,
+                                    fontFamily: GoogleFonts.lato().fontFamily,
+                                  )),
                             ),
                           )),
-                    ),
-                  ],
+                      SliverToBoxAdapter(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: 16.0,
+                                right: 16.0,
+                              ),
+                              child: ListTile(
+                                  leading: CircleFlag(
+                                      (country != "")
+                                          ? country
+                                          : "united_nations",
+                                      size: 38),
+                                  title: Text(
+                                    (name != null) ? "$name ($username)" : "",
+                                    style: TextStyle(
+                                        fontFamily:
+                                            GoogleFonts.firaSans().fontFamily),
+                                  ),
+                                  trailing: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Container(
+                                      color: Colors.grey[50],
+                                      width: 50,
+                                      height: 46,
+                                      child: Icon(
+                                        Icons.chevron_right_rounded,
+                                        size: 30,
+                                      ),
+                                    ),
+                                  )),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                 );
               },
             );
           } else {
             return Container(
-              child: Center(
-                child: CircularProgressIndicator(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: LoadingIndicator(
+                      indicatorType: Indicator.lineScale,
+                      color: kPrimaryColor,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(left: 32.0, right: 32.0),
+                    child: Text(
+                      "Waiting Daenerys say all her titles...",
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
             );
           }
@@ -255,7 +359,7 @@ class _ProfileState extends State<Profile> {
   }
 
   logout() async {
-    print("This works");
+    // print("This works");
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     localStorage.setString(StaticStrings.keyAccessToken, "");
     localStorage.setBool(StaticStrings.keyLogInStatus, false);
