@@ -1,5 +1,5 @@
 class APIs {
-  static var defaultAPIurl = 'https://www.thingaha.org/api/v1/';
+  static var defaultAPIurl = 'https://app.thingaha.org/api/v1/';
 
   // POST
   // {
@@ -19,4 +19,9 @@ class APIs {
 
   static var getDonationListByID = 'donations/'; // Donation by ID.
   static var getUserByID = 'users/';
+  static var getDonatorDonations = "donator_donations";
+  static var getAttendance = 'attendances';
+  static var getAttendancebyPage = 'attendances?page=';
+  static var getAllStudents = 'students';
+  static var getStudentsByPage = 'students?page=';
 }

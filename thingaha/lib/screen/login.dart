@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/api_strings.dart';
@@ -17,6 +18,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final pwdController = TextEditingController();
@@ -30,19 +32,27 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () => SystemChannels.platform
-            .invokeMethod('SystemNavigator.pop'), // onBackPress => exit the app
+    return GestureDetector(
+        onTap: () {
+          FocusScopeNode currentFocus = FocusScope.of(context);
+
+          if (!currentFocus.hasPrimaryFocus) {
+            currentFocus.unfocus();
+          }
+        },
         child: SingleChildScrollView(
           child: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            padding: EdgeInsets.all(20.0),
+            padding: EdgeInsets.only(
+                top: 20.0, bottom: 10.0, left: 20.0, right: 20.0),
             color: Colors.white,
             child: Column(
               children: <Widget>[
                 Image.asset('images/logo.png'),
-                _buildLoginFields()
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32.0),
+                    child: _buildLoginFields())
               ],
             ),
           ),
@@ -72,11 +82,21 @@ class _LoginState extends State<Login> {
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
           ),
         ),
-        child: Text(
-          txt_login,
-          textAlign: TextAlign.center,
-          style: TextStyle().copyWith(color: Colors.white, fontSize: 16.0),
-        ),
+        child: (_isLoading)
+            ? SizedBox(
+                width: 32,
+                height: 32,
+                child: LoadingIndicator(
+                  indicatorType: Indicator.ballClipRotatePulse,
+                  color: Colors.white,
+                ),
+              )
+            : Text(
+                txt_login,
+                textAlign: TextAlign.center,
+                style:
+                    TextStyle().copyWith(color: Colors.white, fontSize: 16.0),
+              ),
       ),
     );
 
@@ -88,7 +108,20 @@ class _LoginState extends State<Login> {
           SizedBox(height: 20),
           passwordTextField,
           SizedBox(height: 30),
-          loginButton
+          loginButton,
+          (_isLoading)
+              ? Container(
+                  margin: EdgeInsets.only(top: 32.0),
+                  child: Material(
+                    child: Text(
+                      "Shovelling coal into the server ...",
+                      style: TextStyle(
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                )
+              : Container(),
         ],
       ),
     );
@@ -104,7 +137,9 @@ class _LoginState extends State<Login> {
           return null;
         },
         controller: (isPassword) ? pwdController : emailController,
-        keyboardType: TextInputType.emailAddress,
+        keyboardType: (isPassword)
+            ? TextInputType.emailAddress
+            : TextInputType.visiblePassword,
         decoration: InputDecoration(
           labelText: label,
           contentPadding: EdgeInsets.only(left: 10.0, bottom: 0.0),
@@ -124,7 +159,38 @@ class _LoginState extends State<Login> {
     );
   }
 
+  showErrorDialog(context, title, message) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   login(context, email, password) async {
+    setState(() {
+      _isLoading = true;
+    });
+
     SharedPreferences localStorage = await SharedPreferences.getInstance();
 
     //var data = {"email_or_username": "moemoe@gmail.com", "password": "123"};
@@ -132,7 +198,6 @@ class _LoginState extends State<Login> {
 
     // This connects to the server and logs in the user.
     var loginResponse = await Network().authData(data, APIs.loginURL);
-    print(loginResponse.body);
     // This decodes the JSON format replied from the server.
     var body = json.decode(loginResponse.body);
 
@@ -141,7 +206,14 @@ class _LoginState extends State<Login> {
 
     // If a credential or something is wrong, error will throw.
     // TODO: Implement Dialog box to show the error.
-    if (body['errors'] != null) return;
+    if (body['errors'] != null) {
+      showErrorDialog(context, body['errors'][0]['reason'],
+          body['errors'][0]['description']);
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
 
     // This means that there's nothing wrong and the server responds success.
     var accessToken = body['data']['access_token'];
@@ -154,8 +226,12 @@ class _LoginState extends State<Login> {
       localStorage.setBool(StaticStrings.keyLogInStatus, true);
     }
 
+    setState(() {
+      _isLoading = false;
+    });
+
     // If everything that has to be done is done, we go to home screen.
-    Navigator.push(context,
+    Navigator.pushReplacement(context,
         MaterialPageRoute(builder: (context) => Home())); //Show error dialog.
   }
 }

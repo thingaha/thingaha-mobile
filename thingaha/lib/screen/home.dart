@@ -1,15 +1,22 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+import 'package:md2_tab_indicator/md2_tab_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/helper/custom_carousel.dart';
+import 'package:thingaha/helper/logout.dart';
+import 'package:thingaha/helper/slivertabs.dart';
+import 'package:thingaha/model/donatordonations.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/model/student_donation_status.dart';
 import 'package:thingaha/helper/drawer_item.dart';
 import 'package:thingaha/screen/all_students.dart';
-import 'package:thingaha/screen/history.dart';
+import 'package:thingaha/screen/attendance_tab.dart';
 import 'package:thingaha/screen/profile.dart';
 import 'package:thingaha/util/api_strings.dart';
 import 'package:thingaha/util/constants.dart';
@@ -18,6 +25,7 @@ import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:thingaha/helper/monthly_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -27,65 +35,417 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _screenIndex = 0;
   String displayName = "";
+  int _selectedTabIndex = 0;
   var screens = [
     Container(),
+    AttendanceScreen(),
     AllStudents(),
-    History(),
     Profile(),
   ];
 
   var titles = [
-    APP_NAME,
+    txt_donations,
+    "Attendance",
     txt_all_students,
-    txt_history,
-    txt_settings,
+    txt_acc,
   ];
+
+  ScrollController _scrollController;
+  bool _isScrolled = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getUserInfo(context);
+    context.read(fetchDisplayNamefromLocalProvider);
+    context.read(fetchDonationList);
+    _scrollController = ScrollController();
+    _scrollController.addListener(_listenToScrollChange);
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => SystemChannels.platform
-          .invokeMethod('SystemNavigator.pop'), // onBackPress => exit the app
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      //drawer: _buildDrawerLayout(),
+      bottomNavigationBar: _bottomNavigationBar(),
+      body: Consumer(
+        builder: (context, watch, child) {
+          AsyncValue<DonatorDonations> donatorDonations =
+              watch(fetchDonationList);
 
-          //drawer: _buildDrawerLayout(),
-          bottomNavigationBar: _bottomNavigationBar(),
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                  toolbarHeight: 100,
-                  automaticallyImplyLeading: false,
-                  elevation: 0,
-                  flexibleSpace: Container(
-                    padding: EdgeInsets.only(left: 32.0, top: 92.0),
-                    child: Text(titles[_screenIndex],
-                        style: TextStyle(
-                          color: (_screenIndex == 0)
-                              ? kPrimaryColor
-                              : Colors.black,
-                          fontSize: 30,
-                          fontFamily: (_screenIndex == 0)
-                              ? GoogleFonts.pacifico().fontFamily
-                              : GoogleFonts.lato().fontFamily,
-                        )),
-                  )),
-              SliverFillRemaining(
-                child: (_screenIndex == 0)
-                    ? SingleChildScrollView(
-                        // TODO: Completely Redesign this screen. -_-
-                        child: _buildCarousel(),
-                      )
-                    : screens[_screenIndex],
-              )
-            ],
-          )),
+          if (donatorDonations != null) {
+            return donatorDonations?.when(
+                loading: () => Scaffold(
+                        body: Center(
+                      child: Column(
+                        children: [
+                          SvgPicture.asset('images/loading.svg',
+                              semanticsLabel: 'Reading from memory card.'),
+                          SizedBox(
+                            width: 36,
+                            height: 36,
+                            child: LoadingIndicator(
+                              indicatorType: Indicator.ballBeat,
+                              color: kPrimaryColor,
+                            ),
+                          ),
+                          Text(
+                            "Reading from memory card.\nPlease do not remove memory card.",
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    )),
+                error: (err, stack) {
+                  String assetName = 'images/bug.svg';
+                  print(stack);
+                  return Scaffold(
+                      body: Center(
+                          child: SvgPicture.asset(assetName,
+                              semanticsLabel: 'Oops! Something went wrong.')));
+                },
+                data: (donatorDonations) {
+                  List<Donation> donations = donatorDonations.data.donations;
+                  //print(donations);
+                  if (donations.isEmpty) {
+                    String assetName = 'images/blank.svg';
+                    return Scaffold(
+                        body: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: SizedBox(
+                            height: 500,
+                            width: 500,
+                            child: SvgPicture.asset(assetName,
+                                semanticsLabel: 'Oops! Something went wrong.'),
+                          ),
+                        ),
+                        Container(child: Text("There's no data... hmmm...")),
+                        ElevatedButton.icon(
+                          onPressed: logout,
+                          label: Text("Logout"),
+                          icon: Icon(Icons.login_rounded),
+                        ),
+                      ],
+                    ));
+                  }
+
+                  var studentListInfo = groupBy(donations, (e) {
+                    return e.student.name;
+                  });
+                  var studentItem = [];
+                  var studentNameList = studentListInfo.keys.toList();
+                  studentListInfo.keys.forEach((key) {
+                    studentItem = donations
+                        .where((data) => data.student.name == key)
+                        .toList();
+                  });
+
+                  return (_screenIndex == 0)
+                      ? _buildHomeShell(studentNameList, donations)
+                      : screens[_screenIndex];
+                });
+          } else {
+            return Scaffold();
+          }
+        },
+      ),
+    );
+  }
+
+  _buildHomeShell(studentNameList, donations) {
+    return DefaultTabController(
+        length: studentNameList.length,
+        child: Builder(
+          builder: (BuildContext context) {
+            return NestedScrollView(
+              controller: _scrollController,
+              headerSliverBuilder: (context, value) {
+                return [
+                  SliverAppBar(
+                      pinned: true,
+                      backgroundColor:
+                          _isScrolled ? Color(0xeeffffff) : Colors.white,
+                      expandedHeight: 100,
+                      title: AnimatedOpacity(
+                        duration: Duration(milliseconds: 300),
+                        opacity: _isScrolled ? 1.0 : 0.0,
+                        curve: Curves.ease,
+                        child: Text(titles[_screenIndex],
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 23,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: GoogleFonts.lato().fontFamily,
+                            )),
+                      ),
+                      automaticallyImplyLeading: false,
+                      elevation: (_screenIndex == 0)
+                          ? 0
+                          : (_isScrolled)
+                              ? 1.5
+                              : 0,
+                      flexibleSpace: AnimatedOpacity(
+                        duration: Duration(milliseconds: 300),
+                        opacity: _isScrolled ? 0.0 : 1.0,
+                        curve: Curves.ease,
+                        child: Container(
+                          padding: EdgeInsets.only(left: 32.0, top: 92.0),
+                          child: Text(titles[_screenIndex],
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                                fontFamily: GoogleFonts.lato().fontFamily,
+                              )),
+                        ),
+                      )),
+                  (_screenIndex == 0)
+                      ? SliverPersistentHeader(
+                          delegate: SliverAppBarDelegate(
+                            TabBar(
+                              isScrollable: true,
+                              indicatorSize: TabBarIndicatorSize.label,
+                              indicator: MD2Indicator(
+                                  //it begins here
+                                  indicatorHeight: 3,
+                                  indicatorColor: kPrimaryColor,
+                                  indicatorSize: MD2IndicatorSize
+                                      .normal //3 different modes tiny-normal-full
+                                  ),
+                              tabs: List.generate(
+                                  studentNameList.length,
+                                  (index) => Tab(
+                                          child: Text(
+                                        studentNameList[index],
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      ))),
+                            ),
+                          ),
+                          pinned: true,
+                        )
+                      : SliverToBoxAdapter(
+                          child: Container(),
+                        ),
+                ];
+              },
+              body: TabBarView(
+                children: List.generate(
+                  studentNameList.length,
+                  (index) => SingleChildScrollView(
+                    // TODO: Completely Redesign this screen. -_-
+                    child:
+                        _buildHomeContent(context, donations, studentNameList),
+                  ),
+                ),
+              ),
+            );
+          },
+        ));
+  }
+
+  void _listenToScrollChange() {
+    if (_scrollController.offset >= 48.0) {
+      setState(() {
+        _isScrolled = true;
+      });
+    } else {
+      setState(() {
+        _isScrolled = false;
+      });
+    }
+  }
+
+  calculateAge(DateTime birthDate) {
+    DateTime currentDate = DateTime.now();
+    int age = currentDate.year - birthDate.year;
+    int month1 = currentDate.month;
+    int month2 = birthDate.month;
+    if (month2 > month1) {
+      age--;
+    } else if (month1 == month2) {
+      int day1 = currentDate.day;
+      int day2 = birthDate.day;
+      if (day2 > day1) {
+        age--;
+      }
+    }
+    return age;
+  }
+
+  Widget _buildHomeContent(context, donations, studentNameList) {
+    int _currentPageIndex;
+    var donationsForCurrentPage;
+
+    _currentPageIndex = DefaultTabController.of(context).index;
+    donationsForCurrentPage = donations
+        .where(
+            (data) => data.student.name == studentNameList[_currentPageIndex])
+        .toList();
+    DefaultTabController.of(context).addListener(() {
+      setState(() {});
+    });
+    var birthday, age, addressDivision, photoURL;
+    if (donationsForCurrentPage != null) {
+      birthday = DateFormat.yMMMMd('en_US')
+          .format(donationsForCurrentPage[0].student.birthDate);
+      age = calculateAge(donationsForCurrentPage[0].student.birthDate);
+      addressDivision = donationsForCurrentPage[0].student.address.division;
+      photoURL = donationsForCurrentPage[0].student.photo;
+    }
+
+    print("Photo is $photoURL");
+    return Container(
+      child: Column(
+        children: [
+          //StudentInfo
+          Container(
+            height: 200,
+            width: double.infinity,
+            margin: EdgeInsets.all(32.0),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.grey[200]),
+                borderRadius: BorderRadius.all(Radius.circular(12)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey[200],
+                    offset: Offset(0, 1),
+                  )
+                ]),
+            child: Row(
+              children: [
+                Container(
+                  width: 120,
+                  margin: EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                      color: (photoURL != "")
+                          ? Colors.transparent
+                          : Colors.grey[200],
+                      borderRadius: BorderRadius.all(Radius.circular(12.0))),
+                  child: (photoURL != "")
+                      ? ClipRRect(
+                          clipBehavior: Clip.antiAlias,
+                          child: Image.network(photoURL),
+                        )
+                      : Center(
+                          child: Text("Student Photo"),
+                        ),
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(top: 16.0),
+                      child: Text(donationsForCurrentPage[0].student.name,
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    Text("$age years old.\n(born $birthday)"),
+                    Container(
+                      margin: EdgeInsets.only(top: 16.0),
+                      child: Text(
+                          "from ${addressDivision.toString()[0].toUpperCase()}${addressDivision.toString()..substring(1)}"),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+
+          Container(
+            child: Table(
+                defaultColumnWidth: FlexColumnWidth(1.0),
+                border: TableBorder(
+                    horizontalInside: BorderSide(
+                  color: Colors.grey[100],
+                )),
+                children:
+                    List.generate(donationsForCurrentPage.length + 1, (index) {
+                  if (index == 0) {
+                    return TableRow(
+                        decoration:
+                            BoxDecoration(color: Colors.white, boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey[300],
+                            offset: Offset(0, 1),
+                          )
+                        ]),
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(bottom: 16.0, left: 32.0),
+                            child: Text(
+                              "Month",
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            "MMK Amount",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(bottom: 16.0, right: 32.0),
+                            child: Text(
+                              "Status",
+                              textAlign: TextAlign.right,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ]);
+                  } else {
+                    return TableRow(children: [
+                      Container(
+                        padding: EdgeInsets.only(
+                            top: 12.0, left: 32.0, bottom: 12.0),
+                        child: Text(
+                          //This capitalizes the first letter.
+                          "${donationsForCurrentPage[index - 1].month.toString()[0].toUpperCase()}${donationsForCurrentPage[index - 1].month.toString().substring(1)}",
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      // Container(
+                      //   child: Text(
+                      //     donationsForCurrentPage[index - 1].student.name,
+                      //     //donations[index].mmkAmount.toString(),
+                      //     textAlign: TextAlign.center,
+                      //   ),
+                      // ),
+                      Container(
+                        padding: EdgeInsets.only(top: 12.0),
+                        child: Text(
+                          donationsForCurrentPage[index - 1]
+                              .mmkAmount
+                              .toString(),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(
+                            top: 12.0, right: 32.0, bottom: 12.0),
+                        child: Text(
+                          donationsForCurrentPage[index - 1].status,
+                          textAlign: TextAlign.end,
+                        ),
+                      ),
+                    ]);
+                  }
+                })),
+          ),
+        ],
+      ),
     );
   }
 
@@ -166,7 +526,7 @@ class _HomeState extends State<Home> {
             _buildDrawerHeader(),
             DrawerItem(title: txt_my_student, route: null),
             DrawerItem(title: txt_all_students, route: AllStudents()),
-            DrawerItem(title: txt_history, route: History()),
+            DrawerItem(title: txt_history, route: AttendanceScreen()),
             DrawerItem(title: txt_profile, route: Profile()),
             DrawerItem(title: txt_logout, route: null),
           ],
@@ -197,6 +557,58 @@ class _HomeState extends State<Home> {
   }
 
   Widget _bottomNavigationBar() {
+    bottomAppBarItem(itemIndex) {
+      return SizedBox(
+        width: 168,
+        child: InkWell(
+            customBorder: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Container(
+              padding: EdgeInsets.only(top: 7.0, bottom: 7.5),
+              child: Column(
+                children: [
+                  Icon(
+                    // This changes icon from outlined to filled when user selected the tab.
+                    (itemIndex == 0)
+                        ? (_screenIndex == 0)
+                            ? Icons.dns_rounded
+                            : Icons.dns_outlined
+                        : (itemIndex == 1)
+                            ? (_screenIndex == 1)
+                                ? Icons.history_edu_rounded
+                                : Icons.history_edu_outlined
+                            : (itemIndex == 2)
+                                ? (_screenIndex == 2)
+                                    ? Icons.people_alt_rounded
+                                    : Icons.people_alt_outlined
+                                : (_screenIndex == 3)
+                                    ? Icons.account_circle_rounded
+                                    : Icons.account_circle_outlined,
+                    // This changes the icon color when user selected the tab.
+                    color: (_screenIndex == itemIndex)
+                        ? kPrimaryColor
+                        : Colors.black,
+                  ),
+                  Text(
+                    titles[itemIndex],
+                    style: TextStyle(
+                      color: (_screenIndex == itemIndex)
+                          ? kPrimaryColor
+                          : Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            onTap: () {
+              setState(() {
+                _screenIndex = itemIndex;
+              });
+            }),
+      );
+    }
+
     return BottomAppBar(
       child: Container(
         height: 56, //Bottom AppBar Height is 56 ... as per material guideline.
@@ -205,84 +617,20 @@ class _HomeState extends State<Home> {
               .spaceEvenly, // this places icons evenly across the screen.
           children: [
             // My Student Tab Icon.
-            IconButton(
-                icon: Icon(
-                  // This changes icon from outlined to filled when user selected the tab.
-                  (_screenIndex == 0)
-                      ? Icons.home_rounded
-                      : Icons.home_outlined,
-                  // This changes the icon color when user selected the tab.
-                  color: (_screenIndex == 0) ? kPrimaryColor : Colors.black,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _screenIndex = 0;
-                  });
-                }),
-
-            // All Students Tab Icon.
-            IconButton(
-                icon: Icon(
-                  (_screenIndex == 1)
-                      ? Icons.people_alt_rounded
-                      : Icons.people_alt_outlined,
-                  color: (_screenIndex == 1) ? kPrimaryColor : Colors.black,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _screenIndex = 1;
-                  });
-                }),
-
-            // History Tab Icon
-            IconButton(
-                icon: Icon(
-                  (_screenIndex == 2)
-                      ? Icons.history_edu_rounded
-                      : Icons.history_edu_outlined,
-                  color: (_screenIndex == 2) ? kPrimaryColor : Colors.black,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _screenIndex = 2;
-                  });
-                }),
-
-            // Profile Tab Icon
-            IconButton(
-              icon: Icon(
-                (_screenIndex == 3)
-                    ? Icons.person_pin_circle_rounded
-                    : Icons.person_pin_circle_outlined,
-                color: (_screenIndex == 3) ? kPrimaryColor : Colors.black,
-              ),
-              onPressed: () {
-                setState(() {
-                  _screenIndex = 3;
-                });
-              },
+            Container(
+              width: 20,
             ),
+            Expanded(child: bottomAppBarItem(0)),
+            Expanded(child: bottomAppBarItem(1)),
+            Expanded(child: bottomAppBarItem(2)),
+            Expanded(child: bottomAppBarItem(3)),
+            Container(
+              width: 20,
+            ),
+            // All Students Tab Icon.
           ],
         ),
       ),
     );
-  }
-
-  getUserInfo(BuildContext context) async {
-    //int userID = context.read(userIDProvider).state;
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
-    int userID = localStorage.getInt(StaticStrings.keyUserID);
-    var userInfoResponse =
-        await Network().getData("${APIs.getUserByID}$userID");
-
-    // This decodes the JSON format replied from the server.
-    //List<dynamic> body = json.decode(utf8.decode(userInfoResponse.body));
-
-    // Check "https://stackoverflow.com/a/51370010" for why you need to use utf8.decode.
-    var body = json.decode(utf8.decode(userInfoResponse.bodyBytes));
-    print(utf8.decode(userInfoResponse.bodyBytes));
-
-    displayName = body['data']['user']['display_name'];
-    localStorage.setString(StaticStrings.keyDisplayName, displayName);
   }
 }
