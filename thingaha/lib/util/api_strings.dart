@@ -22,4 +22,6 @@ class APIs {
   static var getDonatorDonations = "donator_donations";
   static var getAttendance = 'attendances';
   static var getAttendancebyPage = 'attendances?page=';
+  static var getAllStudents = 'students';
+  static var getStudentsByPage = 'students?page=';
 }

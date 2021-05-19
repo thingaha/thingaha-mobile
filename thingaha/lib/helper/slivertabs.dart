@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:thingaha/util/style_constants.dart';
 
 class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   SliverAppBarDelegate(this._tabBar);
@@ -14,16 +15,14 @@ class SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return new Container(
-      decoration: BoxDecoration(
-          color: (overlapsContent) ? Color(0xeeffffff) : Colors.white,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.grey[200],
-                offset: Offset(0, (overlapsContent) ? 1.5 : 0)),
-          ]),
-      padding: EdgeInsets.only(left: 16.0),
-      child: _tabBar,
-    );
+        decoration: BoxDecoration(
+          color: kAppBarLightColor,
+          border: Border(
+            bottom: BorderSide(width: 1.5, color: Colors.grey[200]),
+          ),
+        ),
+        padding: EdgeInsets.only(left: 16.0),
+        child: _tabBar);
   }
 
   @override

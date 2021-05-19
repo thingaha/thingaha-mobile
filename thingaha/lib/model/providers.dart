@@ -13,6 +13,7 @@ import 'package:thingaha/util/api_strings.dart';
 import 'package:thingaha/util/keys.dart';
 import 'package:thingaha/util/network.dart';
 import 'package:thingaha/util/string_constants.dart';
+import 'student.dart' as std;
 
 final isLoggedInProvider = StateNotifierProvider((ref) => LoggedInState());
 
@@ -49,8 +50,8 @@ final fetchUserDetail = FutureProvider.autoDispose<UserInfo>((ref) async {
   int userID = localStorage.getInt(StaticStrings.keyUserID);
   var userInfoResponse = await Network().getData("${APIs.getUserByID}$userID");
   var body = json.decode(utf8.decode(userInfoResponse.bodyBytes));
-  print(utf8.decode(userInfoResponse.bodyBytes));
-
+  //print(utf8.decode(userInfoResponse.bodyBytes));
+  ref.maintainState = true;
   var displayName = body['data']['user']['display_name'];
   localStorage.setString(StaticStrings.keyDisplayName, displayName);
 
@@ -111,7 +112,7 @@ final attendancePageCount = FutureProvider<int>((ref) async {
 final attendancePage = FutureProvider.family<Attendance, int>((ref, id) async {
   var attendanceResponse =
       await Network().getData("${APIs.getAttendancebyPage}${id + 1}");
-  print("${APIs.getAttendancebyPage}${id + 1}");
+  //print("${APIs.getAttendancebyPage}${id + 1}");
   //print(attendanceResponse.body);
   var body = json.decode(utf8.decode(attendanceResponse.bodyBytes));
   //print(body);
@@ -120,4 +121,30 @@ final attendancePage = FutureProvider.family<Attendance, int>((ref, id) async {
   }
 
   return attendanceFromJson(utf8.decode(attendanceResponse.bodyBytes));
+});
+
+final studentPageCount = FutureProvider<int>((ref) async {
+  var response = await Network().getData(APIs.getAllStudents);
+  var body = json.decode(utf8.decode(response.bodyBytes));
+  //print(utf8.decode(response.bodyBytes));
+  var pages = 0;
+  if (body['msg'] == "Token has expired") {
+    logout();
+  } else {
+    pages = body['data']['pages'];
+    //print(pages);
+  }
+  return pages;
+});
+
+final studentPage = FutureProvider.family<std.Students, int>((ref, id) async {
+  var response = await Network().getData("${APIs.getStudentsByPage}${id + 1}");
+  //print(attendanceResponse.body);
+  var body = json.decode(utf8.decode(response.bodyBytes));
+  //print(body);
+  if (body['msg'] == "Token has expired") {
+    logout();
+  }
+
+  return std.studentsFromJson(utf8.decode(response.bodyBytes));
 });

@@ -48,19 +48,7 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        // appBar: CustomAppBar(
-        //    // title: txt_profile,
-        //     actionButton: [
-        //       IconButton(
-        //         icon: Icon(Icons.edit, color: Colors.white),
-        //         onPressed: () {
-        //           Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile()));
-        //         })
-        //     ],
-        // ),
-        backgroundColor: Colors.white,
-        body: _buildProfile());
+    return _buildProfile();
   }
 
   Widget _buildProfile() {
@@ -70,152 +58,6 @@ class _ProfileState extends State<Profile> {
     donor.email = "khinekhine123@gmail.com";
     donor.country = "Myanmar";
     donor.address = "Lorem ipsum dolor sit amet";
-
-    Widget name = Container(
-      width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.only(top: 16.0, bottom: 32.0),
-      child: Consumer(
-        builder: (context, watch, child) {
-          AsyncValue<UserInfo> userInfo = watch(fetchUserDetail).data;
-          var name = "";
-          var email = "";
-          var username = "";
-          var country = "";
-          var address = "";
-          if (userInfo != null) {
-            return userInfo?.when(
-              loading: () => Row(
-                children: [
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: LoadingIndicator(
-                      indicatorType: Indicator.lineScale,
-                      color: kPrimaryColor,
-                    ),
-                  ),
-                  Text(
-                    "Waiting Daenerys say all her titles...",
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-              error: (err, stack) => Text('Error: $err'),
-              data: (userInfo) {
-                name = userInfo.data.user.displayName;
-                email = userInfo.data.user.email;
-                username = userInfo.data.user.username;
-                country = userInfo.data.user.country;
-                address = userInfo.data.user.formattedAddress;
-                return Flexible(
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    slivers: [
-                      SliverAppBar(
-                          pinned: true,
-                          backgroundColor:
-                              _isScrolled ? kAppBarLightColor : Colors.white,
-                          expandedHeight: 120,
-                          title: AnimatedOpacity(
-                            duration: Duration(milliseconds: 300),
-                            opacity: _isScrolled ? 1.0 : 0.0,
-                            curve: Curves.ease,
-                            child: Text("Settings",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 23,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: GoogleFonts.lato().fontFamily,
-                                )),
-                          ),
-                          automaticallyImplyLeading: false,
-                          elevation: (_isScrolled) ? 1.5 : 0,
-                          flexibleSpace: AnimatedOpacity(
-                            duration: Duration(milliseconds: 300),
-                            opacity: _isScrolled ? 0.0 : 1.0,
-                            curve: Curves.ease,
-                            child: Container(
-                              padding: EdgeInsets.only(
-                                  left: 32.0, top: 92.0, right: 32.0),
-                              child: Text("Settings",
-                                  style: TextStyle(
-                                    color: Colors.black87,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 30,
-                                    fontFamily: GoogleFonts.lato().fontFamily,
-                                  )),
-                            ),
-                          )),
-                      SliverToBoxAdapter(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left: 16.0,
-                                right: 16.0,
-                              ),
-                              child: ListTile(
-                                  leading: CircleFlag(
-                                      (country != "")
-                                          ? country
-                                          : "united_nations",
-                                      size: 38),
-                                  title: Text(
-                                    (name != null) ? "$name ($username)" : "",
-                                    style: TextStyle(
-                                        fontFamily:
-                                            GoogleFonts.firaSans().fontFamily),
-                                  ),
-                                  trailing: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Container(
-                                      color: Colors.grey[50],
-                                      width: 50,
-                                      height: 46,
-                                      child: Icon(
-                                        Icons.chevron_right_rounded,
-                                        size: 30,
-                                      ),
-                                    ),
-                                  )),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              },
-            );
-          } else {
-            return Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: LoadingIndicator(
-                      indicatorType: Indicator.lineScale,
-                      color: kPrimaryColor,
-                    ),
-                  ),
-                  Container(
-                    padding: EdgeInsets.only(left: 32.0, right: 32.0),
-                    child: Text(
-                      "Waiting Daenerys say all her titles...",
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-        },
-      ),
-    );
 
     Widget info = Container(
       margin: EdgeInsets.symmetric(horizontal: 10.0),
@@ -259,67 +101,70 @@ class _ProfileState extends State<Profile> {
       var _darkmode = false;
       return Padding(
         padding: EdgeInsets.only(left: 16.0, top: 12.0, right: 16.0),
-        child: ListTile(
-            onTap: () {
-              final scaffold = ScaffoldMessenger.of(context);
-              scaffold.showSnackBar(
-                SnackBar(
-                  content: Text('Pressed $title (* ^ ω ^)'),
-                  behavior: SnackBarBehavior.floating,
-                  duration: Duration(seconds: 1),
-                  //action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
-                ),
-              );
-
-              if (onTapEvent == "logout") logout();
-            },
-            leading: CircleAvatar(
-              backgroundColor: iconBackgroundColor,
-              child: Icon(
-                icon,
-                color: iconColor,
+        child: InkWell(
+          borderRadius: BorderRadius.all(Radius.circular(12)),
+          onTap: () {
+            final scaffold = ScaffoldMessenger.of(context);
+            scaffold.showSnackBar(
+              SnackBar(
+                content: Text('Pressed $title (* ^ ω ^)'),
+                behavior: SnackBarBehavior.floating,
+                duration: Duration(seconds: 1),
+                //action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
               ),
-            ),
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style:
-                      TextStyle(fontFamily: GoogleFonts.firaSans().fontFamily),
+            );
+
+            if (onTapEvent == "logout") logout();
+          },
+          child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: iconBackgroundColor,
+                child: Icon(
+                  icon,
+                  color: iconColor,
                 ),
-                Text(
-                  sub,
-                  style: TextStyle(
-                    color: Colors.grey[600],
+              ),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                        fontFamily: GoogleFonts.firaSans().fontFamily),
                   ),
-                ),
-              ],
-            ),
-            trailing: isSwitch
-                ? Transform.scale(
-                    scale: 0.9,
-                    child: CupertinoSwitch(
-                      value: _darkmode,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _darkmode = value;
-                        });
-                      },
+                  Text(
+                    sub,
+                    style: TextStyle(
+                      color: Colors.grey[600],
                     ),
-                  )
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      color: Colors.grey[50],
-                      width: 50,
-                      height: 46,
-                      child: Icon(
-                        Icons.chevron_right_rounded,
-                        size: 30,
+                  ),
+                ],
+              ),
+              trailing: isSwitch
+                  ? Transform.scale(
+                      scale: 0.9,
+                      child: CupertinoSwitch(
+                        value: _darkmode,
+                        onChanged: (bool value) {
+                          setState(() {
+                            _darkmode = value;
+                          });
+                        },
                       ),
-                    ),
-                  )),
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        color: Colors.grey[50],
+                        width: 50,
+                        height: 46,
+                        child: Icon(
+                          Icons.chevron_right_rounded,
+                          size: 30,
+                        ),
+                      ),
+                    )),
+        ),
       );
     }
 
@@ -344,18 +189,175 @@ class _ProfileState extends State<Profile> {
       ),
     );
 
-    return Container(
-      child: Column(
-        children: [
-          Container(
-              alignment: Alignment.centerLeft,
-              padding: EdgeInsets.only(left: 32.0, top: 48.0),
-              child: Text(txt_profile)),
-          name,
-          settingsColumn,
-        ],
+    Widget name = Container(
+      width: MediaQuery.of(context).size.width,
+      margin: EdgeInsets.only(top: 16.0, bottom: 32.0),
+      child: Consumer(
+        builder: (context, watch, child) {
+          AsyncValue<UserInfo> userInfo = watch(fetchUserDetail).data;
+          var name = "";
+          var email = "";
+          var username = "";
+          var country = "";
+          var address = "";
+          if (userInfo != null) {
+            return userInfo?.when(
+              loading: () => Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: LoadingIndicator(
+                        indicatorType: Indicator.lineScale,
+                        color: kPrimaryColor,
+                      ),
+                    ),
+                    Text(
+                      "Waiting Daenerys say all her titles...",
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+              error: (err, stack) => Text('Error: $err'),
+              data: (userInfo) {
+                name = userInfo.data.user.displayName;
+                email = userInfo.data.user.email;
+                username = userInfo.data.user.username;
+                country = userInfo.data.user.country;
+                address = userInfo.data.user.formattedAddress;
+                return CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    _buildSliverAppBar(txt_acc),
+                    SliverToBoxAdapter(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.only(
+                              left: 16.0,
+                              right: 16.0,
+                            ),
+                            child: InkWell(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(12)),
+                              onTap: () {
+                                final scaffold = ScaffoldMessenger.of(context);
+                                scaffold.showSnackBar(
+                                  SnackBar(
+                                    content: Text('Pressed $name (* ^ ω ^)'),
+                                    behavior: SnackBarBehavior.floating,
+                                    duration: Duration(seconds: 1),
+                                    //action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
+                                  ),
+                                );
+
+                                //if (onTapEvent == "logout") logout();
+                              },
+                              child: ListTile(
+                                  leading: CircleFlag(
+                                      (country != "")
+                                          ? country
+                                          : "united_nations",
+                                      size: 38),
+                                  title: Text(
+                                    (name != null) ? "$name ($username)" : "",
+                                    style: TextStyle(
+                                        fontFamily:
+                                            GoogleFonts.firaSans().fontFamily),
+                                  ),
+                                  trailing: ClipRRect(
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Container(
+                                      color: Colors.grey[50],
+                                      width: 50,
+                                      height: 46,
+                                      child: Icon(
+                                        Icons.chevron_right_rounded,
+                                        size: 30,
+                                      ),
+                                    ),
+                                  )),
+                            ),
+                          ),
+                          settingsColumn,
+                        ],
+                      ),
+                    )
+                  ],
+                );
+              },
+            );
+          } else {
+            return Container(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: LoadingIndicator(
+                        indicatorType: Indicator.lineScale,
+                        color: kPrimaryColor,
+                      ),
+                    ),
+                    Text(
+                      "Waiting Daenerys say all her titles...",
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+        },
       ),
     );
+
+    return Container(
+      child: name,
+    );
+  }
+
+  _buildSliverAppBar(title) {
+    return SliverAppBar(
+        pinned: true,
+        backgroundColor: _isScrolled ? kAppBarLightColor : Colors.white,
+        expandedHeight: 120,
+        title: AnimatedOpacity(
+          duration: Duration(milliseconds: 300),
+          opacity: _isScrolled ? 1.0 : 0.0,
+          curve: Curves.ease,
+          child: Text(title,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 23,
+                fontWeight: FontWeight.bold,
+                fontFamily: GoogleFonts.lato().fontFamily,
+              )),
+        ),
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        flexibleSpace: AnimatedOpacity(
+          duration: Duration(milliseconds: 300),
+          opacity: _isScrolled ? 0.0 : 1.0,
+          curve: Curves.ease,
+          child: Container(
+            padding: EdgeInsets.only(left: 32.0, top: 92.0, right: 32.0),
+            child: Text(title,
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
+                  fontFamily: GoogleFonts.lato().fontFamily,
+                )),
+          ),
+        ));
   }
 
   logout() async {

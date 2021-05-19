@@ -47,7 +47,7 @@ class _HomeState extends State<Home> {
     txt_donations,
     "Attendance",
     txt_all_students,
-    txt_settings,
+    txt_acc,
   ];
 
   ScrollController _scrollController;
