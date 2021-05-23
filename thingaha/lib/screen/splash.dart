@@ -31,7 +31,13 @@ class _SplashState extends State<Splash> {
     return Consumer(
       builder: (context, ref, child) {
         final isLoggedIn = ref(isLoggedInProvider.notifier);
-        checkAuth(isLoggedIn);
+        final appTheme = ref(appThemeFromLocalProvider);
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // executes after build
+          checkAuth(isLoggedIn);
+        });
+
         return child;
       },
       child: Container(
@@ -48,6 +54,7 @@ class _SplashState extends State<Splash> {
   checkAuth(isLoggedIn) async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     var accessToken = localStorage.getString(StaticStrings.keyAccessToken);
+
     if (accessToken == null || accessToken == "") {
       // Not Logged In
       isLoggedIn.setStatus(false);

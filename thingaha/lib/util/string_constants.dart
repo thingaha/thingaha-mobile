@@ -36,4 +36,13 @@ class StaticStrings {
   static const String keyLogInStatus = "isLoggedIn";
   static const String keyUserID = "userID";
   static const String keyDisplayName = "displayName";
+  static const String keyAppTheme = "appTheme";
+
+  static const String themeLight = "light";
+  static const String themeDark = "dark";
+  static const String themeSystem = "system";
+
+  static const String themeDisplayLight = "Jedi's";
+  static const String themeDisplayDark = "Sith's";
+  static const String themeDisplaySystem = "System's";
 }

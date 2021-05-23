@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/model/providers.dart';
@@ -32,31 +33,40 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-        onTap: () {
-          FocusScopeNode currentFocus = FocusScope.of(context);
+    return Consumer(builder: (context, ref, child) {
+      final appTheme = ref(appThemeProvider);
+      return GestureDetector(
+          onTap: () {
+            FocusScopeNode currentFocus = FocusScope.of(context);
 
-          if (!currentFocus.hasPrimaryFocus) {
-            currentFocus.unfocus();
-          }
-        },
-        child: SingleChildScrollView(
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            padding: EdgeInsets.only(
-                top: 20.0, bottom: 10.0, left: 20.0, right: 20.0),
-            color: Colors.white,
-            child: Column(
-              children: <Widget>[
-                Image.asset('images/logo.png'),
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32.0),
-                    child: _buildLoginFields())
-              ],
+            if (!currentFocus.hasPrimaryFocus) {
+              currentFocus.unfocus();
+            }
+          },
+          child: SingleChildScrollView(
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              padding: EdgeInsets.only(
+                  top: 20.0, bottom: 10.0, left: 20.0, right: 20.0),
+              color: Colors.white,
+              child: Column(
+                children: <Widget>[
+                  ColorFiltered(
+                    colorFilter:
+                        ColorFilter.mode(Colors.black, BlendMode.screen),
+                    child: Image.asset(
+                      'images/logo.png',
+                    ),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 32.0),
+                      child: _buildLoginFields())
+                ],
+              ),
             ),
-          ),
-        ));
+          ));
+    });
   }
 
   Widget _buildLoginFields() {
@@ -116,8 +126,8 @@ class _LoginState extends State<Login> {
                     child: Text(
                       "Shovelling coal into the server ...",
                       style: TextStyle(
-                        fontSize: 11,
-                      ),
+                          fontSize: 10,
+                          color: Theme.of(context).textTheme.subtitle2.color),
                     ),
                   ),
                 )
@@ -138,8 +148,8 @@ class _LoginState extends State<Login> {
         },
         controller: (isPassword) ? pwdController : emailController,
         keyboardType: (isPassword)
-            ? TextInputType.emailAddress
-            : TextInputType.visiblePassword,
+            ? TextInputType.visiblePassword
+            : TextInputType.emailAddress,
         decoration: InputDecoration(
           labelText: label,
           contentPadding: EdgeInsets.only(left: 10.0, bottom: 0.0),
@@ -205,7 +215,6 @@ class _LoginState extends State<Login> {
     print(loginResponse.body);
 
     // If a credential or something is wrong, error will throw.
-    // TODO: Implement Dialog box to show the error.
     if (body['errors'] != null) {
       showErrorDialog(context, body['errors'][0]['reason'],
           body['errors'][0]['description']);

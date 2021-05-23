@@ -134,7 +134,7 @@ class Student {
   });
 
   Address address;
-  DateTime birthDate;
+  String birthDate;
   String deactivatedAt;
   String fatherName;
   int id;
@@ -145,8 +145,9 @@ class Student {
 
   factory Student.fromJson(Map<String, dynamic> json) => Student(
         address: Address.fromJson(json["address"]),
-        birthDate: DateTime.parse(json["birth_date"]),
-        deactivatedAt: json["deactivated_at"],
+        birthDate: json["birth_date"] == null ? null : json["birth_date"],
+        deactivatedAt:
+            json["deactivated_at"] == null ? null : json["deactivated_at"],
         fatherName: json["father_name"],
         id: json["id"],
         motherName: json["mother_name"],
@@ -157,9 +158,8 @@ class Student {
 
   Map<String, dynamic> toJson() => {
         "address": address.toJson(),
-        "birth_date":
-            "${birthDate.year.toString().padLeft(4, '0')}-${birthDate.month.toString().padLeft(2, '0')}-${birthDate.day.toString().padLeft(2, '0')}",
-        "deactivated_at": deactivatedAt,
+        "birth_date": birthDate == null ? null : birthDate,
+        "deactivated_at": deactivatedAt == null ? null : deactivatedAt,
         "father_name": fatherName,
         "id": id,
         "mother_name": motherName,

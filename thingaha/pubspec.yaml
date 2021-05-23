@@ -23,6 +23,8 @@ dependencies:
   loading_indicator: ^2.0.1
   flutter_sticky_header: ^0.6.0
   sticky_headers: ^0.2.0
+  eva_icons_flutter: ^3.0.0
+
 
 dev_dependencies:
   flutter_test:
@@ -33,3 +35,11 @@ flutter:
   uses-material-design: true
   assets:
    - images/
+
+  fonts:
+    - family: Tagu
+      fonts:
+        - asset: fonts/Tagu.ttf
+    - family: Sanpya
+      fonts:
+        - asset: fonts/Sanpya.ttf

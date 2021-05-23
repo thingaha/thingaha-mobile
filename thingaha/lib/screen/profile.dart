@@ -1,17 +1,11 @@
-import 'dart:developer';
-
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thingaha/helper/custom_cardview.dart';
-import 'package:thingaha/helper/title_and_text_with_column.dart';
-import 'package:thingaha/model/donor.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/model/userinfo.dart';
-import 'package:thingaha/screen/change_password.dart';
 import 'package:thingaha/screen/login.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
@@ -25,10 +19,9 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   ScrollController _scrollController;
   bool _isScrolled = false;
-
+  bool isDarkTheme = false;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_listenToScrollChange);
@@ -48,57 +41,19 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildProfile();
+    return Consumer(
+      builder: (context, ref, child) {
+        var appThemeSelection = ref(appThemeProvider.notifier);
+        final selectedAppTheme = ref(appThemeProvider);
+
+        return _buildProfile(appThemeSelection, selectedAppTheme);
+      },
+    );
   }
 
-  Widget _buildProfile() {
-    //TODO: Get data from API
-    Donor donor = Donor();
-    donor.name = "Khine Khine";
-    donor.email = "khinekhine123@gmail.com";
-    donor.country = "Myanmar";
-    donor.address = "Lorem ipsum dolor sit amet";
-
-    Widget info = Container(
-      margin: EdgeInsets.symmetric(horizontal: 10.0),
-      child: CustomCardView(
-        cardView: Container(
-          padding: EdgeInsets.all(15.0),
-          child: Column(
-            children: [
-              TitleAndTextWithColumn(title: txt_email, text: donor.email),
-              TitleAndTextWithColumn(title: txt_country, text: donor.country),
-              TitleAndTextWithColumn(title: txt_address, text: donor.address)
-            ],
-          ),
-        ),
-      ),
-    );
-
-    Widget changePassword = Container(
-      margin: EdgeInsets.symmetric(vertical: 25.0),
-      child: MaterialButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => ChangePassword()));
-        },
-        color: kPrimaryColor,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Text(
-            txt_change_password,
-            textAlign: TextAlign.center,
-            style: TextStyle().copyWith(color: Colors.white, fontSize: 16.0),
-          ),
-        ),
-      ),
-    );
-
+  Widget _buildProfile(appThemeSelection, selectedAppTheme) {
     Widget settingsListItem(icon, iconBackgroundColor, iconColor, title, sub,
-        bool isSwitch, String onTapEvent) {
-      var _darkmode = false;
+        bool isThemeChooser, String onTapEvent) {
       return Padding(
         padding: EdgeInsets.only(left: 16.0, top: 12.0, right: 16.0),
         child: InkWell(
@@ -114,7 +69,14 @@ class _ProfileState extends State<Profile> {
               ),
             );
 
-            if (onTapEvent == "logout") logout();
+            //if (onTapEvent == "logout") logout();
+            switch (onTapEvent) {
+              case "logout":
+                logout();
+                break;
+
+              default:
+            }
           },
           child: ListTile(
               leading: CircleAvatar(
@@ -129,8 +91,7 @@ class _ProfileState extends State<Profile> {
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
-                        fontFamily: GoogleFonts.firaSans().fontFamily),
+                    style: Theme.of(context).textTheme.subtitle2,
                   ),
                   Text(
                     sub,
@@ -140,30 +101,18 @@ class _ProfileState extends State<Profile> {
                   ),
                 ],
               ),
-              trailing: isSwitch
-                  ? Transform.scale(
-                      scale: 0.9,
-                      child: CupertinoSwitch(
-                        value: _darkmode,
-                        onChanged: (bool value) {
-                          setState(() {
-                            _darkmode = value;
-                          });
-                        },
-                      ),
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(
-                        color: Colors.grey[50],
-                        width: 50,
-                        height: 46,
-                        child: Icon(
-                          Icons.chevron_right_rounded,
-                          size: 30,
-                        ),
-                      ),
-                    )),
+              trailing: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 50,
+                  height: 46,
+                  child: Icon(
+                    Icons.chevron_right_rounded,
+                    size: 30,
+                    color: searchIconColor(context, selectedAppTheme),
+                  ),
+                ),
+              )),
         ),
       );
     }
@@ -174,15 +123,18 @@ class _ProfileState extends State<Profile> {
           Container(
               alignment: Alignment.centerLeft,
               padding: EdgeInsets.only(left: 32.0, top: 32.0, bottom: 12.0),
-              child: Text(txt_settings)),
+              child: Text(
+                txt_settings,
+                style: TextStyle(
+                    color: Theme.of(context).textTheme.subtitle2.color),
+              )),
           settingsListItem(Icons.info_rounded, Colors.pink[50], Colors.pink,
               "About Us", "", false, null),
           settingsListItem(Icons.language_rounded, Colors.blue[50], Colors.blue,
               "Language", "English", false, null),
           settingsListItem(Icons.vpn_key_rounded, Colors.green[50],
               Colors.green, "Password", "", false, null),
-          settingsListItem(Icons.lightbulb_outlined, Colors.purple[50],
-              Colors.purple, "DarkMode", "Off", true, null),
+          _buildThemeChooser(appThemeSelection, selectedAppTheme),
           settingsListItem(Icons.logout, Colors.cyan[50], Colors.cyan, "Logout",
               "", false, "logout"),
         ],
@@ -191,132 +143,115 @@ class _ProfileState extends State<Profile> {
 
     Widget name = Container(
       width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.only(top: 16.0, bottom: 32.0),
-      child: Consumer(
-        builder: (context, watch, child) {
-          AsyncValue<UserInfo> userInfo = watch(fetchUserDetail).data;
-          var name = "";
-          var email = "";
-          var username = "";
-          var country = "";
-          var address = "";
-          if (userInfo != null) {
-            return userInfo?.when(
-              loading: () => Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: LoadingIndicator(
-                        indicatorType: Indicator.lineScale,
-                        color: kPrimaryColor,
-                      ),
-                    ),
-                    Text(
-                      "Waiting Daenerys say all her titles...",
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+      child: Consumer(builder: (context, watch, child) {
+        var name = "";
+        var email = "";
+        var username = "";
+        var country = "";
+        var address = "";
+        return watch(fetchUserDetail).when(
+          loading: () => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: LoadingIndicator(
+                    indicatorType: Indicator.lineScale,
+                    color: kPrimaryColor,
+                  ),
                 ),
-              ),
-              error: (err, stack) => Text('Error: $err'),
-              data: (userInfo) {
-                name = userInfo.data.user.displayName;
-                email = userInfo.data.user.email;
-                username = userInfo.data.user.username;
-                country = userInfo.data.user.country;
-                address = userInfo.data.user.formattedAddress;
-                return CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    _buildSliverAppBar(txt_acc),
-                    SliverToBoxAdapter(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.only(
-                              left: 16.0,
-                              right: 16.0,
-                            ),
-                            child: InkWell(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(12)),
-                              onTap: () {
-                                final scaffold = ScaffoldMessenger.of(context);
-                                scaffold.showSnackBar(
-                                  SnackBar(
-                                    content: Text('Pressed $name (* ^ ω ^)'),
-                                    behavior: SnackBarBehavior.floating,
-                                    duration: Duration(seconds: 1),
-                                    //action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
-                                  ),
-                                );
+                Text(
+                  "Waiting Daenerys say all her titles...",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.subtitle2,
+                ),
+              ],
+            ),
+          ),
+          error: (err, stack) => Text('Error: $err'),
+          data: (userInfo) {
+            name = userInfo.data.user.displayName;
+            email = userInfo.data.user.email;
+            username = userInfo.data.user.username;
+            country = userInfo.data.user.country;
+            address = userInfo.data.user.formattedAddress;
+            return CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                _buildSliverAppBar(txt_acc),
+                SliverToBoxAdapter(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 32.0),
+                        padding: EdgeInsets.only(
+                          left: 16.0,
+                          right: 16.0,
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.all(Radius.circular(12)),
+                          onTap: () {
+                            final scaffold = ScaffoldMessenger.of(context);
+                            scaffold.showSnackBar(
+                              SnackBar(
+                                content: Text('Pressed $name (* ^ ω ^)'),
+                                behavior: SnackBarBehavior.floating,
+                                duration: Duration(seconds: 1),
+                                //action: SnackBarAction(label: 'UNDO', onPressed: scaffold.hideCurrentSnackBar),
+                              ),
+                            );
 
-                                //if (onTapEvent == "logout") logout();
-                              },
-                              child: ListTile(
-                                  leading: CircleFlag(
-                                      (country != "")
-                                          ? country
-                                          : "united_nations",
-                                      size: 38),
-                                  title: Text(
-                                    (name != null) ? "$name ($username)" : "",
-                                    style: TextStyle(
-                                        fontFamily:
-                                            GoogleFonts.firaSans().fontFamily),
+                            //if (onTapEvent == "logout") logout();
+                          },
+                          child: ListTile(
+                              leading: CircleFlag(
+                                  (country != "") ? country : "united_nations",
+                                  size: 38),
+                              title: Text(
+                                (name != null) ? "$name ($username)" : "",
+                                style: TextStyle(
+                                  fontSize: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      .fontSize,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      .color,
+                                  fontFamilyFallback: [
+                                    'Sanpya',
+                                  ],
+                                ),
+                              ),
+                              trailing: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Container(
+                                  width: 50,
+                                  height: 46,
+                                  child: Icon(
+                                    Icons.chevron_right_rounded,
+                                    size: 30,
+                                    color: searchIconColor(
+                                        context, selectedAppTheme),
                                   ),
-                                  trailing: ClipRRect(
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Container(
-                                      color: Colors.grey[50],
-                                      width: 50,
-                                      height: 46,
-                                      child: Icon(
-                                        Icons.chevron_right_rounded,
-                                        size: 30,
-                                      ),
-                                    ),
-                                  )),
-                            ),
-                          ),
-                          settingsColumn,
-                        ],
+                                ),
+                              )),
+                        ),
                       ),
-                    )
-                  ],
-                );
-              },
+                      settingsColumn,
+                    ],
+                  ),
+                )
+              ],
             );
-          } else {
-            return Container(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: LoadingIndicator(
-                        indicatorType: Indicator.lineScale,
-                        color: kPrimaryColor,
-                      ),
-                    ),
-                    Text(
-                      "Waiting Daenerys say all her titles...",
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-        },
-      ),
+          },
+        );
+      }),
     );
 
     return Container(
@@ -324,22 +259,118 @@ class _ProfileState extends State<Profile> {
     );
   }
 
+  _buildThemeChooser(appThemeSelection, selectedAppTheme) {
+    var width = MediaQuery.of(context).size.width;
+    return Container(
+      margin: EdgeInsets.only(top: 16.0),
+      padding: EdgeInsets.only(left: 16.0, right: 16.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      child: PopupMenuButton<ThemeMode>(
+        enableFeedback: true,
+        color: cardBackgroundColor(context, selectedAppTheme),
+        tooltip: "Choose one of the three App Themes",
+        onSelected: (ThemeMode result) {
+          setAppTheme(appThemeSelection, result);
+          setState(() {
+            //_selection = result;
+          });
+        },
+        offset: Offset(width.toDouble(), -16),
+        child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.purple[50],
+              child: Icon(
+                (selectedAppTheme == ThemeMode.light)
+                    ? EvaIcons.sun
+                    : (selectedAppTheme == ThemeMode.dark)
+                        ? EvaIcons.moon
+                        : EvaIcons.settings,
+                color: Colors.purple,
+              ),
+            ),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "App Theme",
+                  style: Theme.of(context).textTheme.subtitle2,
+                ),
+                Text(
+                  (selectedAppTheme == ThemeMode.light)
+                      ? "Jedi's"
+                      : (selectedAppTheme == ThemeMode.dark)
+                          ? "Sith's"
+                          : "System's",
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+            trailing: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                // color: (selectedAppTheme == ThemeMode.light ||
+                //         selectedAppTheme == ThemeMode.system &&
+                //             MediaQuery.of(context).platformBrightness ==
+                //                 Brightness.light)
+                //     ? Colors.grey[50]
+                //     : Colors.white70,
+                width: 50,
+                height: 46,
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  size: 30,
+                  color: searchIconColor(context, selectedAppTheme),
+                ),
+              ),
+            )),
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<ThemeMode>>[
+          PopupMenuItem<ThemeMode>(
+            value: ThemeMode.light,
+            child: Text("Jedi's", style: Theme.of(context).textTheme.subtitle2),
+          ),
+          PopupMenuItem<ThemeMode>(
+            value: ThemeMode.dark,
+            child: Text("Sith's", style: Theme.of(context).textTheme.subtitle2),
+          ),
+          PopupMenuItem<ThemeMode>(
+            value: ThemeMode.system,
+            child:
+                Text("System's", style: Theme.of(context).textTheme.subtitle2),
+          ),
+        ],
+      ),
+    );
+  }
+
+  setAppTheme(appThemeSelection, result) async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var themeString;
+    if (result == ThemeMode.light) {
+      themeString = StaticStrings.themeLight;
+    } else if (result == ThemeMode.light) {
+      themeString = StaticStrings.themeDark;
+    } else if (result == ThemeMode.light) {
+      themeString = StaticStrings.themeSystem;
+    } else {
+      themeString = StaticStrings.themeSystem;
+    }
+    localStorage.setString(StaticStrings.keyAppTheme, themeString);
+    appThemeSelection.setTheme(result);
+  }
+
   _buildSliverAppBar(title) {
     return SliverAppBar(
         pinned: true,
-        backgroundColor: _isScrolled ? kAppBarLightColor : Colors.white,
-        expandedHeight: 120,
+        expandedHeight: 100,
         title: AnimatedOpacity(
           duration: Duration(milliseconds: 300),
           opacity: _isScrolled ? 1.0 : 0.0,
           curve: Curves.ease,
-          child: Text(title,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 23,
-                fontWeight: FontWeight.bold,
-                fontFamily: GoogleFonts.lato().fontFamily,
-              )),
+          child: Text(title, style: Theme.of(context).textTheme.headline5),
         ),
         automaticallyImplyLeading: false,
         elevation: 0,
@@ -349,13 +380,7 @@ class _ProfileState extends State<Profile> {
           curve: Curves.ease,
           child: Container(
             padding: EdgeInsets.only(left: 32.0, top: 92.0, right: 32.0),
-            child: Text(title,
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
-                  fontFamily: GoogleFonts.lato().fontFamily,
-                )),
+            child: Text(title, style: Theme.of(context).textTheme.headline4),
           ),
         ));
   }

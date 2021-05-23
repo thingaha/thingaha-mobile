@@ -1,20 +1,12 @@
-import 'package:collection/collection.dart';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:thingaha/helper/custom_appbar.dart';
-import 'package:thingaha/helper/custom_cardview.dart';
-import 'package:thingaha/model/attendances.dart';
 import 'package:thingaha/model/providers.dart';
-import 'package:thingaha/screen/student_per_year.dart';
-import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
-
-//TODO: Get data from API
-List<String> years = ["2017", "2018", "2019", "2020"];
 
 class AttendanceScreen extends StatefulWidget {
   @override
@@ -23,12 +15,11 @@ class AttendanceScreen extends StatefulWidget {
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
   ScrollController _scrollController;
-  StickyHeaderController _stickyController;
   bool _isScrolled = false;
+  bool isDarkTheme = false;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     context.read(fetchDisplayNamefromLocalProvider);
     context.read(fetchDonationList);
@@ -52,6 +43,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, watch, child) {
+        final appTheme = watch(appThemeProvider);
         return watch(attendancePageCount).when(
           loading: () => _attendanceLoading("Swapping Time and Space ..."),
           error: (err, stack) => _attendanceError(err, stack),
@@ -59,14 +51,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             return CustomScrollView(
               controller: _scrollController,
               slivers: [
-                _buildSliverAppBar(),
+                _buildSliverAppBar(appTheme),
                 // We Put a dummy DataTable to display only the Header
                 // becuase we want the header to be sticky when user scrolled.
                 SliverStickyHeader(
                   overlapsContent: true,
                   header: Container(
                       decoration: BoxDecoration(
-                          color: _isScrolled ? kAppBarLightColor : Colors.white,
+                          color: appBarColor(context, _isScrolled, appTheme),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.transparent,
@@ -79,19 +71,34 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           DataColumn(
                             label: Text(
                               'Year',
-                              style: TextStyle(fontStyle: FontStyle.italic),
+                              style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      .color),
                             ),
                           ),
                           DataColumn(
                             label: Text(
                               'Name',
-                              style: TextStyle(fontStyle: FontStyle.italic),
+                              style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      .color),
                             ),
                           ),
                           DataColumn(
                             label: Text(
                               'Grade',
-                              style: TextStyle(fontStyle: FontStyle.italic),
+                              style: TextStyle(
+                                  fontStyle: FontStyle.italic,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .subtitle2
+                                      .color),
                             ),
                           ),
                         ],
@@ -99,13 +106,35 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           // These had to be added to extend the width of the DataTable to Screen Width.
                           DataRow(cells: [
                             DataCell(
-                              Text("2020"),
+                              Text("2020",
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .subtitle2
+                                          .color)),
                             ),
                             DataCell(
-                              Text("မောင်ချမ်းမြဆန်းလှ"), // :P
+                              Text(
+                                "မောင်ချမ်းမြဆန်းလှ",
+                                style: TextStyle(
+                                    fontFamilyFallback: [
+                                      'Sanpya',
+                                    ],
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .subtitle2
+                                        .color),
+                              ), // :P
                             ),
                             DataCell(
-                              Text("G-11"),
+                              Text(
+                                "G-11",
+                                style: TextStyle(
+                                    color: Theme.of(context)
+                                        .textTheme
+                                        .subtitle2
+                                        .color),
+                              ),
                             ),
                           ])
                         ],
@@ -161,17 +190,36 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                       (listIndex) => DataRow(
                                             cells: [
                                               DataCell(
-                                                Text(list[listIndex]
-                                                    .year
-                                                    .toString()),
+                                                Text(
+                                                    list[listIndex]
+                                                        .year
+                                                        .toString(),
+                                                    style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2
+                                                            .color)),
                                               ),
                                               DataCell(
-                                                Text(list[listIndex]
-                                                    .student
-                                                    .name),
+                                                Text(
+                                                  list[listIndex].student.name,
+                                                  style: TextStyle(
+                                                      fontFamilyFallback: [
+                                                        'Sanpya',
+                                                      ],
+                                                      color: Theme.of(context)
+                                                          .textTheme
+                                                          .subtitle2
+                                                          .color),
+                                                ),
                                               ),
                                               DataCell(
-                                                Text(list[listIndex].grade),
+                                                Text(list[listIndex].grade,
+                                                    style: TextStyle(
+                                                        color: Theme.of(context)
+                                                            .textTheme
+                                                            .subtitle2
+                                                            .color)),
                                               ),
                                             ],
                                           )),
@@ -192,7 +240,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
   _attendanceLoading(String message) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -208,6 +255,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             Text(
               message,
               textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.subtitle2,
             ),
           ],
         ),
@@ -224,22 +272,17 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     );
   }
 
-  _buildSliverAppBar() {
+  _buildSliverAppBar(appTheme) {
     return SliverAppBar(
+        backgroundColor: appBarColor(context, _isScrolled, appTheme),
         pinned: true,
-        backgroundColor: _isScrolled ? kAppBarLightColor : Colors.white,
         expandedHeight: 100,
         title: AnimatedOpacity(
           duration: Duration(milliseconds: 300),
           opacity: _isScrolled ? 1.0 : 0.0,
           curve: Curves.ease,
-          child: Text("Attendances",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 23,
-                fontWeight: FontWeight.bold,
-                fontFamily: GoogleFonts.lato().fontFamily,
-              )),
+          child:
+              Text("Attendances", style: Theme.of(context).textTheme.headline5),
         ),
         automaticallyImplyLeading: false,
         elevation: 0,
@@ -250,12 +293,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           child: Container(
             padding: EdgeInsets.only(left: 32.0, top: 92.0, right: 32.0),
             child: Text("Attendances",
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
-                  fontFamily: GoogleFonts.lato().fontFamily,
-                )),
+                style: Theme.of(context).textTheme.headline4),
           ),
         ));
   }

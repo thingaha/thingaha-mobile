@@ -7,10 +7,7 @@ import 'package:thingaha/helper/logout.dart';
 import 'package:thingaha/model/attendances.dart';
 import 'package:thingaha/model/donatordonations.dart';
 import 'package:thingaha/model/userinfo.dart';
-import 'package:thingaha/screen/login.dart';
-import 'package:thingaha/screen/profile.dart';
 import 'package:thingaha/util/api_strings.dart';
-import 'package:thingaha/util/keys.dart';
 import 'package:thingaha/util/network.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'student.dart' as std;
@@ -22,6 +19,33 @@ class LoggedInState extends StateNotifier<bool> {
 
   void setStatus(bool value) => state = value;
 }
+
+final appThemeProvider = StateNotifierProvider((ref) => AppThemeState());
+
+class AppThemeState extends StateNotifier<ThemeMode> {
+  AppThemeState() : super(ThemeMode.system);
+
+  void setTheme(value) => state = value;
+}
+
+final appThemeFromLocalProvider = FutureProvider<ThemeMode>((ref) async {
+  SharedPreferences localStorage = await SharedPreferences.getInstance();
+
+  var themeString = localStorage.getString(StaticStrings.keyAppTheme);
+  ThemeMode theme;
+  if (themeString == StaticStrings.themeLight) {
+    theme = ThemeMode.light;
+  } else if (themeString == StaticStrings.themeDark) {
+    theme = ThemeMode.dark;
+  } else if (themeString == StaticStrings.themeSystem) {
+    theme = ThemeMode.system;
+  } else {
+    theme = ThemeMode.system;
+  }
+  ref.watch(appThemeProvider.notifier).setTheme(theme);
+
+  return;
+});
 
 // ------------------------------------------------------
 
@@ -62,7 +86,7 @@ final fetchUserDetail = FutureProvider.autoDispose<UserInfo>((ref) async {
 
 final fetchDonationList =
     FutureProvider.autoDispose<DonatorDonations>((ref) async {
-  SharedPreferences localStorage = await SharedPreferences.getInstance();
+  //SharedPreferences localStorage = await SharedPreferences.getInstance();
   // int userID = localStorage.getInt(StaticStrings.keyUserID);
   var donatorDonationsResponse =
       await Network().getData(APIs.getDonatorDonations);
@@ -79,7 +103,7 @@ final fetchDonationList =
 });
 
 final fetchAttendanceList = FutureProvider.autoDispose<Attendance>((ref) async {
-  SharedPreferences localStorage = await SharedPreferences.getInstance();
+  // SharedPreferences localStorage = await SharedPreferences.getInstance();
   // int userID = localStorage.getInt(StaticStrings.keyUserID);
   var attendanceResponse = await Network().getData(APIs.getAttendance);
   ref.maintainState = true;

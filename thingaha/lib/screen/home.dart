@@ -1,29 +1,19 @@
-import 'dart:convert';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:md2_tab_indicator/md2_tab_indicator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thingaha/helper/custom_carousel.dart';
 import 'package:thingaha/helper/logout.dart';
 import 'package:thingaha/helper/slivertabs.dart';
 import 'package:thingaha/model/donatordonations.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/model/student_donation_status.dart';
-import 'package:thingaha/helper/drawer_item.dart';
 import 'package:thingaha/screen/all_students.dart';
 import 'package:thingaha/screen/attendance_tab.dart';
 import 'package:thingaha/screen/profile.dart';
-import 'package:thingaha/util/api_strings.dart';
-import 'package:thingaha/util/constants.dart';
-import 'package:thingaha/util/network.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
-import 'package:thingaha/helper/monthly_status.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -35,7 +25,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _screenIndex = 0;
   String displayName = "";
-  int _selectedTabIndex = 0;
   var screens = [
     Container(),
     AttendanceScreen(),
@@ -55,7 +44,6 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     context.read(fetchDisplayNamefromLocalProvider);
     context.read(fetchDonationList);
@@ -65,98 +53,102 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      //drawer: _buildDrawerLayout(),
-      bottomNavigationBar: _bottomNavigationBar(),
-      body: Consumer(
-        builder: (context, watch, child) {
-          AsyncValue<DonatorDonations> donatorDonations =
-              watch(fetchDonationList);
+    return Consumer(
+      builder: (context, ref, child) {
+        final appTheme = ref(appThemeProvider);
+        return Scaffold(
+          bottomNavigationBar: _bottomNavigationBar(appTheme),
+          body: Consumer(
+            builder: (context, watch, child) {
+              AsyncValue<DonatorDonations> donatorDonations =
+                  watch(fetchDonationList);
 
-          if (donatorDonations != null) {
-            return donatorDonations?.when(
-                loading: () => Scaffold(
-                        body: Center(
-                      child: Column(
-                        children: [
-                          SvgPicture.asset('images/loading.svg',
-                              semanticsLabel: 'Reading from memory card.'),
-                          SizedBox(
-                            width: 36,
-                            height: 36,
-                            child: LoadingIndicator(
-                              indicatorType: Indicator.ballBeat,
-                              color: kPrimaryColor,
+              if (donatorDonations != null) {
+                return donatorDonations?.when(
+                    loading: () => Scaffold(
+                            body: Center(
+                          child: Column(
+                            children: [
+                              SvgPicture.asset('images/loading.svg',
+                                  semanticsLabel: 'Reading from memory card.'),
+                              SizedBox(
+                                width: 36,
+                                height: 36,
+                                child: LoadingIndicator(
+                                  indicatorType: Indicator.ballBeat,
+                                  color: kPrimaryColor,
+                                ),
+                              ),
+                              Text(
+                                "Reading from memory card.\nPlease do not remove memory card.",
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.subtitle2,
+                              ),
+                            ],
+                          ),
+                        )),
+                    error: (err, stack) {
+                      String assetName = 'images/bug.svg';
+                      print(stack);
+                      return Scaffold(
+                          body: Center(
+                              child: SvgPicture.asset(assetName,
+                                  semanticsLabel:
+                                      'Oops! Something went wrong.')));
+                    },
+                    data: (donatorDonations) {
+                      List<Donation> donations =
+                          donatorDonations.data.donations;
+                      //print(donations);
+                      if (donations.isEmpty) {
+                        String assetName = 'images/blank.svg';
+                        return Scaffold(
+                            body: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              child: SizedBox(
+                                height: 500,
+                                width: 500,
+                                child: SvgPicture.asset(assetName,
+                                    semanticsLabel:
+                                        'Oops! Something went wrong.'),
+                              ),
                             ),
-                          ),
-                          Text(
-                            "Reading from memory card.\nPlease do not remove memory card.",
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    )),
-                error: (err, stack) {
-                  String assetName = 'images/bug.svg';
-                  print(stack);
-                  return Scaffold(
-                      body: Center(
-                          child: SvgPicture.asset(assetName,
-                              semanticsLabel: 'Oops! Something went wrong.')));
-                },
-                data: (donatorDonations) {
-                  List<Donation> donations = donatorDonations.data.donations;
-                  //print(donations);
-                  if (donations.isEmpty) {
-                    String assetName = 'images/blank.svg';
-                    return Scaffold(
-                        body: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          child: SizedBox(
-                            height: 500,
-                            width: 500,
-                            child: SvgPicture.asset(assetName,
-                                semanticsLabel: 'Oops! Something went wrong.'),
-                          ),
-                        ),
-                        Container(child: Text("There's no data... hmmm...")),
-                        ElevatedButton.icon(
-                          onPressed: logout,
-                          label: Text("Logout"),
-                          icon: Icon(Icons.login_rounded),
-                        ),
-                      ],
-                    ));
-                  }
+                            Container(
+                                child: Text("There's no data... hmmm...")),
+                            ElevatedButton.icon(
+                              onPressed: logout,
+                              label: Text("Logout"),
+                              icon: Icon(Icons.login_rounded),
+                            ),
+                          ],
+                        ));
+                      }
 
-                  var studentListInfo = groupBy(donations, (e) {
-                    return e.student.name;
-                  });
-                  var studentItem = [];
-                  var studentNameList = studentListInfo.keys.toList();
-                  studentListInfo.keys.forEach((key) {
-                    studentItem = donations
-                        .where((data) => data.student.name == key)
-                        .toList();
-                  });
+                      var studentListInfo = groupBy(donations, (e) {
+                        return e.student.name;
+                      });
 
-                  return (_screenIndex == 0)
-                      ? _buildHomeShell(studentNameList, donations)
-                      : screens[_screenIndex];
-                });
-          } else {
-            return Scaffold();
-          }
-        },
-      ),
+                      var studentNameList = studentListInfo.keys.toList();
+
+                      return (_screenIndex == 0)
+                          ? _buildHomeShell(
+                              studentNameList, donations, appTheme)
+                          : screens[_screenIndex];
+                    });
+              } else {
+                return Scaffold();
+              }
+            },
+          ),
+        );
+      },
     );
   }
 
-  _buildHomeShell(studentNameList, donations) {
+  _buildHomeShell(studentNameList, donations, appTheme) {
     return DefaultTabController(
         length: studentNameList.length,
         child: Builder(
@@ -166,21 +158,23 @@ class _HomeState extends State<Home> {
               headerSliverBuilder: (context, value) {
                 return [
                   SliverAppBar(
-                      pinned: true,
+                      backwardsCompatibility: false,
+                      systemOverlayStyle: SystemUiOverlayStyle(
+                        statusBarColor:
+                            appBarColor(context, _isScrolled, appTheme),
+                        statusBarIconBrightness:
+                            appStatusBarIconBrightness(context, appTheme),
+                      ),
                       backgroundColor:
-                          _isScrolled ? Color(0xeeffffff) : Colors.white,
+                          appBarColor(context, _isScrolled, appTheme),
+                      pinned: true,
                       expandedHeight: 100,
                       title: AnimatedOpacity(
                         duration: Duration(milliseconds: 300),
                         opacity: _isScrolled ? 1.0 : 0.0,
                         curve: Curves.ease,
                         child: Text(titles[_screenIndex],
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 23,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: GoogleFonts.lato().fontFamily,
-                            )),
+                            style: Theme.of(context).textTheme.headline5),
                       ),
                       automaticallyImplyLeading: false,
                       elevation: (_screenIndex == 0)
@@ -195,12 +189,7 @@ class _HomeState extends State<Home> {
                         child: Container(
                           padding: EdgeInsets.only(left: 32.0, top: 92.0),
                           child: Text(titles[_screenIndex],
-                              style: TextStyle(
-                                color: Colors.black87,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 30,
-                                fontFamily: GoogleFonts.lato().fontFamily,
-                              )),
+                              style: Theme.of(context).textTheme.headline4),
                         ),
                       )),
                   (_screenIndex == 0)
@@ -212,7 +201,8 @@ class _HomeState extends State<Home> {
                               indicator: MD2Indicator(
                                   //it begins here
                                   indicatorHeight: 3,
-                                  indicatorColor: kPrimaryColor,
+                                  indicatorColor:
+                                      Theme.of(context).primaryColor,
                                   indicatorSize: MD2IndicatorSize
                                       .normal //3 different modes tiny-normal-full
                                   ),
@@ -222,7 +212,13 @@ class _HomeState extends State<Home> {
                                           child: Text(
                                         studentNameList[index],
                                         style: TextStyle(
-                                            fontWeight: FontWeight.bold),
+                                            fontFamilyFallback: ['Sanpya'],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color: Theme.of(context)
+                                                .textTheme
+                                                .subtitle2
+                                                .color),
                                       ))),
                             ),
                           ),
@@ -237,9 +233,8 @@ class _HomeState extends State<Home> {
                 children: List.generate(
                   studentNameList.length,
                   (index) => SingleChildScrollView(
-                    // TODO: Completely Redesign this screen. -_-
-                    child:
-                        _buildHomeContent(context, donations, studentNameList),
+                    child: _buildHomeContent(
+                        context, donations, studentNameList, appTheme),
                   ),
                 ),
               ),
@@ -277,7 +272,7 @@ class _HomeState extends State<Home> {
     return age;
   }
 
-  Widget _buildHomeContent(context, donations, studentNameList) {
+  Widget _buildHomeContent(context, donations, studentNameList, appTheme) {
     int _currentPageIndex;
     var donationsForCurrentPage;
 
@@ -290,10 +285,23 @@ class _HomeState extends State<Home> {
       setState(() {});
     });
     var birthday, age, addressDivision, photoURL;
+    print(donationsForCurrentPage[0].student.birthDate);
     if (donationsForCurrentPage != null) {
-      birthday = DateFormat.yMMMMd('en_US')
-          .format(donationsForCurrentPage[0].student.birthDate);
-      age = calculateAge(donationsForCurrentPage[0].student.birthDate);
+      print(donationsForCurrentPage[0].student.birthDate);
+      if (donationsForCurrentPage[0].student.birthDate != null &&
+          donationsForCurrentPage[0].student.birthDate != "") {
+        birthday = DateFormat.yMMMMd('en_US')
+            .format(
+                DateTime.parse(donationsForCurrentPage[0].student.birthDate))
+            .toString();
+        age = calculateAge(
+                DateTime.parse(donationsForCurrentPage[0].student.birthDate))
+            .toString();
+      } else {
+        birthday = "";
+        age = "";
+      }
+
       addressDivision = donationsForCurrentPage[0].student.address.division;
       photoURL = donationsForCurrentPage[0].student.photo;
     }
@@ -308,12 +316,12 @@ class _HomeState extends State<Home> {
             width: double.infinity,
             margin: EdgeInsets.all(32.0),
             decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(color: Colors.grey[200]),
+                color: cardBackgroundColor(context, appTheme),
+                border: Border.all(color: borderColor(context, appTheme)),
                 borderRadius: BorderRadius.all(Radius.circular(12)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey[200],
+                    color: boxShadowColor(context, appTheme),
                     offset: Offset(0, 1),
                   )
                 ]),
@@ -325,7 +333,7 @@ class _HomeState extends State<Home> {
                   decoration: BoxDecoration(
                       color: (photoURL != "")
                           ? Colors.transparent
-                          : Colors.grey[200],
+                          : studentPhotoDummyColor(context, appTheme),
                       borderRadius: BorderRadius.all(Radius.circular(12.0))),
                   child: (photoURL != "")
                       ? ClipRRect(
@@ -341,16 +349,27 @@ class _HomeState extends State<Home> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      margin: EdgeInsets.only(top: 16.0),
-                      child: Text(donationsForCurrentPage[0].student.name,
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
+                      margin: EdgeInsets.only(top: 16.0, bottom: 16.0),
+                      child: Text(
+                        donationsForCurrentPage[0].student.name,
+                        style: TextStyle(
+                            color: Theme.of(context).textTheme.subtitle2.color,
+                            fontFamilyFallback: ['Sanpya'],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18),
+                      ),
                     ),
-                    Text("$age years old.\n(born $birthday)"),
+                    Text((age == "") ? "" : "$age years old.\n(born $birthday)",
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.subtitle2.color,
+                        )),
                     Container(
                       margin: EdgeInsets.only(top: 16.0),
                       child: Text(
-                          "from ${addressDivision.toString()[0].toUpperCase()}${addressDivision.toString()..substring(1)}"),
+                          "from ${addressDivision.toString()[0].toUpperCase()}${addressDivision.toString().substring(1)}",
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.subtitle2.color,
+                          )),
                     ),
                   ],
                 )
@@ -363,43 +382,55 @@ class _HomeState extends State<Home> {
                 defaultColumnWidth: FlexColumnWidth(1.0),
                 border: TableBorder(
                     horizontalInside: BorderSide(
-                  color: Colors.grey[100],
+                  color: borderColor(context, appTheme),
                 )),
                 children:
                     List.generate(donationsForCurrentPage.length + 1, (index) {
                   if (index == 0) {
                     return TableRow(
-                        decoration:
-                            BoxDecoration(color: Colors.white, boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey[300],
-                            offset: Offset(0, 1),
-                          )
-                        ]),
+                        decoration: BoxDecoration(
+                            color: cardBackgroundColor(context, appTheme),
+                            boxShadow: [
+                              BoxShadow(
+                                color: boxShadowColor(context, appTheme),
+                                offset: Offset(0, 1),
+                              )
+                            ]),
                         children: [
                           Container(
-                            margin: EdgeInsets.only(bottom: 16.0, left: 32.0),
+                            margin: EdgeInsets.only(
+                                bottom: 16.0, left: 32.0, top: 16.0),
                             child: Text(
                               "Month",
                               textAlign: TextAlign.left,
                               style: TextStyle(
+                                color:
+                                    Theme.of(context).textTheme.subtitle2.color,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
-                          Text(
-                            "MMK Amount",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                          Container(
+                            margin: EdgeInsets.only(bottom: 16.0, top: 16.0),
+                            child: Text(
+                              "MMK Amount",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color:
+                                    Theme.of(context).textTheme.subtitle2.color,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           Container(
-                            margin: EdgeInsets.only(bottom: 16.0, right: 32.0),
+                            margin: EdgeInsets.only(
+                                bottom: 16.0, right: 32.0, top: 16.0),
                             child: Text(
                               "Status",
                               textAlign: TextAlign.right,
                               style: TextStyle(
+                                color:
+                                    Theme.of(context).textTheme.subtitle2.color,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -414,6 +445,9 @@ class _HomeState extends State<Home> {
                           //This capitalizes the first letter.
                           "${donationsForCurrentPage[index - 1].month.toString()[0].toUpperCase()}${donationsForCurrentPage[index - 1].month.toString().substring(1)}",
                           textAlign: TextAlign.start,
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.subtitle2.color,
+                          ),
                         ),
                       ),
                       // Container(
@@ -430,6 +464,9 @@ class _HomeState extends State<Home> {
                               .mmkAmount
                               .toString(),
                           textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.subtitle2.color,
+                          ),
                         ),
                       ),
                       Container(
@@ -438,6 +475,9 @@ class _HomeState extends State<Home> {
                         child: Text(
                           donationsForCurrentPage[index - 1].status,
                           textAlign: TextAlign.end,
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.subtitle2.color,
+                          ),
                         ),
                       ),
                     ]);
@@ -447,18 +487,6 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
-  }
-
-  Widget _buildCarousel() {
-    //Get data from api
-    List<StudentDonationStatus> studentDonationStatusList =
-        getStudentDonationStatusList();
-
-    //Create carousel widgets
-    List<Widget> carouselItems = studentDonationStatusList
-        .map((item) => MonthlyStatus(studentStatus: item))
-        .toList();
-    return CustomCarousel(items: carouselItems);
   }
 
   List<StudentDonationStatus> getStudentDonationStatusList() {
@@ -517,46 +545,7 @@ class _HomeState extends State<Home> {
     return studentList;
   }
 
-  Widget _buildDrawerLayout() {
-    return Drawer(
-      child: Container(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            _buildDrawerHeader(),
-            DrawerItem(title: txt_my_student, route: null),
-            DrawerItem(title: txt_all_students, route: AllStudents()),
-            DrawerItem(title: txt_history, route: AttendanceScreen()),
-            DrawerItem(title: txt_profile, route: Profile()),
-            DrawerItem(title: txt_logout, route: null),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDrawerHeader() {
-    return DrawerHeader(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            txt_welcome,
-            style: GoogleFonts.lobster(
-                textStyle: TextStyle(color: Colors.white, fontSize: 50)),
-          )
-        ],
-      ),
-      decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [kPrimaryColor, Colors.lightGreen])),
-    );
-  }
-
-  Widget _bottomNavigationBar() {
+  Widget _bottomNavigationBar(appTheme) {
     bottomAppBarItem(itemIndex) {
       return SizedBox(
         width: 168,
@@ -570,32 +559,23 @@ class _HomeState extends State<Home> {
                 children: [
                   Icon(
                     // This changes icon from outlined to filled when user selected the tab.
-                    (itemIndex == 0)
-                        ? (_screenIndex == 0)
-                            ? Icons.dns_rounded
-                            : Icons.dns_outlined
-                        : (itemIndex == 1)
-                            ? (_screenIndex == 1)
-                                ? Icons.history_edu_rounded
-                                : Icons.history_edu_outlined
-                            : (itemIndex == 2)
-                                ? (_screenIndex == 2)
-                                    ? Icons.people_alt_rounded
-                                    : Icons.people_alt_outlined
-                                : (_screenIndex == 3)
-                                    ? Icons.account_circle_rounded
-                                    : Icons.account_circle_outlined,
+                    bottomAppBarIcon(itemIndex, _screenIndex),
                     // This changes the icon color when user selected the tab.
-                    color: (_screenIndex == itemIndex)
-                        ? kPrimaryColor
-                        : Colors.black,
+                    color: bottomAppBarIconColor(
+                        context, itemIndex, _screenIndex, appTheme),
                   ),
                   Text(
                     titles[itemIndex],
                     style: TextStyle(
                       color: (_screenIndex == itemIndex)
-                          ? kPrimaryColor
-                          : Colors.black,
+                          ? Theme.of(context).primaryColor
+                          : (appTheme == ThemeMode.light ||
+                                  appTheme == ThemeMode.system &&
+                                      MediaQuery.of(context)
+                                              .platformBrightness ==
+                                          Brightness.light)
+                              ? Colors.black
+                              : cloudColor,
                     ),
                   ),
                 ],
@@ -611,22 +591,31 @@ class _HomeState extends State<Home> {
 
     return BottomAppBar(
       child: Container(
-        height: 56, //Bottom AppBar Height is 56 ... as per material guideline.
+        height: 57, //Bottom AppBar Height is 56 ... as per material guideline.
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+                color: (appTheme == ThemeMode.light ||
+                        appTheme == ThemeMode.system &&
+                            MediaQuery.of(context).platformBrightness ==
+                                Brightness
+                                    .light) // Light Theme Or System Light theme)
+                    ? Colors.transparent
+                    : darkAppBarShadowColor,
+                width: 1),
+          ),
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment
               .spaceEvenly, // this places icons evenly across the screen.
           children: [
             // My Student Tab Icon.
-            Container(
-              width: 20,
-            ),
+
             Expanded(child: bottomAppBarItem(0)),
             Expanded(child: bottomAppBarItem(1)),
             Expanded(child: bottomAppBarItem(2)),
             Expanded(child: bottomAppBarItem(3)),
-            Container(
-              width: 20,
-            ),
+
             // All Students Tab Icon.
           ],
         ),

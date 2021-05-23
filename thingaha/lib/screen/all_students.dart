@@ -1,17 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:thingaha/helper/custom_appbar.dart';
-import 'package:thingaha/helper/custom_cardview.dart';
 import 'package:thingaha/model/providers.dart';
-import 'package:thingaha/screen/student_per_year.dart';
-import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
-
-//TODO: Get data from API
-List<String> years = ["2017", "2018", "2019", "2020"];
 
 class AllStudents extends StatefulWidget {
   @override
@@ -23,7 +15,6 @@ class _AllStudentsState extends State<AllStudents> {
   bool _isScrolled = false;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     context.read(fetchDisplayNamefromLocalProvider);
     context.read(fetchDonationList);
@@ -47,6 +38,7 @@ class _AllStudentsState extends State<AllStudents> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, watch, child) {
+        final appTheme = watch(appThemeProvider);
         return watch(studentPageCount).when(
           loading: () => _studentLoading("Swapping Time and Space ..."),
           error: (err, stack) => _studentError(err, stack),
@@ -55,7 +47,7 @@ class _AllStudentsState extends State<AllStudents> {
             return NestedScrollView(
                 controller: _scrollController,
                 headerSliverBuilder: (context, isInnerBoxScrolled) {
-                  return [_buildSliverAppBar()];
+                  return [_buildSliverAppBar(appTheme)];
                 },
                 body: ListView(
                   children: List.generate(itemCount, (index) {
@@ -66,7 +58,7 @@ class _AllStudentsState extends State<AllStudents> {
                                   width: 100,
                                   height: 200,
                                   child: _studentLoading(
-                                      "Changing a new lightbulb..."),
+                                      "Changing lightbulb #$index"),
                                 ),
                             error: (err, stack) => _studentError(err, stack),
                             data: (att) {
@@ -83,14 +75,17 @@ class _AllStudentsState extends State<AllStudents> {
                                     (listIndex) => Container(
                                           margin: EdgeInsets.all(16.0),
                                           decoration: BoxDecoration(
-                                              color: Colors.white,
+                                              color: cardBackgroundColor(
+                                                  context, appTheme),
                                               border: Border.all(
-                                                  color: Colors.grey[200]),
+                                                  color: borderColor(
+                                                      context, appTheme)),
                                               borderRadius: BorderRadius.all(
                                                   Radius.circular(12)),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: Colors.grey[200],
+                                                  color: boxShadowColor(
+                                                      context, appTheme),
                                                   offset: Offset(0, 1),
                                                 )
                                               ]),
@@ -105,7 +100,8 @@ class _AllStudentsState extends State<AllStudents> {
                                                                 .photo !=
                                                             "")
                                                         ? Colors.transparent
-                                                        : Colors.grey[200],
+                                                        : studentPhotoDummyColor(
+                                                            context, appTheme),
                                                     borderRadius:
                                                         BorderRadius.all(
                                                             Radius.circular(
@@ -124,7 +120,17 @@ class _AllStudentsState extends State<AllStudents> {
                                                             "Student Photo"),
                                                       ),
                                               ),
-                                              Text(list[listIndex].name),
+                                              Text(
+                                                list[listIndex].name,
+                                                style: TextStyle(
+                                                    fontFamilyFallback: [
+                                                      'Sanpya',
+                                                    ],
+                                                    color: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2
+                                                        .color),
+                                              ),
                                             ],
                                           ),
                                         )),
@@ -140,28 +146,29 @@ class _AllStudentsState extends State<AllStudents> {
     );
   }
 
-  _buildSliverAppBar() {
+  _buildSliverAppBar(appTheme) {
     return SliverAppBar(
         pinned: true,
-        backgroundColor: _isScrolled ? kAppBarLightColor : Colors.white,
+        backgroundColor: appBarColor(context, _isScrolled, appTheme),
         expandedHeight: 80,
         title: AnimatedOpacity(
           duration: Duration(milliseconds: 300),
           opacity: _isScrolled ? 1.0 : 0.0,
           curve: Curves.ease,
-          child: Text("Students",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 23,
-                fontWeight: FontWeight.bold,
-                fontFamily: GoogleFonts.lato().fontFamily,
-              )),
+          child: Text(
+            "Students",
+            style: Theme.of(context).textTheme.headline5,
+          ),
         ),
         actions: [
           Container(
               margin: EdgeInsets.only(right: 16.0),
               child: IconButton(
-                  icon: Icon(Icons.search_rounded), onPressed: () {})),
+                  icon: Icon(
+                    Icons.search_rounded,
+                    color: searchIconColor(context, appTheme),
+                  ),
+                  onPressed: () {})),
         ],
         automaticallyImplyLeading: false,
         elevation: _isScrolled ? 1.5 : 0,
@@ -171,13 +178,10 @@ class _AllStudentsState extends State<AllStudents> {
           curve: Curves.ease,
           child: Container(
             padding: EdgeInsets.only(left: 32.0, top: 92.0, right: 32.0),
-            child: Text("Students",
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
-                  fontFamily: GoogleFonts.lato().fontFamily,
-                )),
+            child: Text(
+              "Students",
+              style: Theme.of(context).textTheme.headline4,
+            ),
           ),
         ));
   }
@@ -198,6 +202,7 @@ class _AllStudentsState extends State<AllStudents> {
           Text(
             message,
             textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.subtitle2,
           ),
         ],
       ),
