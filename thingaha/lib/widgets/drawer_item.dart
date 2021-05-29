@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:thingaha/helper/reusable_widget.dart';
+import 'package:thingaha/widgets/reusable_widget.dart';
 import 'package:thingaha/util/string_constants.dart';
 
 class DrawerItem extends StatelessWidget {
@@ -17,18 +17,16 @@ class DrawerItem extends StatelessWidget {
           onTap: () {
             Navigator.pop(context); //Close drawer
 
-            if(title != txt_my_student && route != null) {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => route));
-            }
-            else if(title == txt_logout) {
+            if (title != txt_my_student && route != null) {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => route));
+            } else if (title == txt_logout) {
               //TODO: logout
             }
           },
         ),
         ReusableWidgets.getDivider(),
       ],
-    )
-    ;
+    );
   }
-
 }

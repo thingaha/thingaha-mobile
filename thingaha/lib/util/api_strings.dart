@@ -24,4 +24,6 @@ class APIs {
   static var getAttendancebyPage = 'attendances?page=';
   static var getAllStudents = 'students';
   static var getStudentsByPage = 'students?page=';
+  static var getAllSchools = 'schools';
+  static var getSchoolsByPage = 'schools?page=';
 }

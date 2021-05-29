@@ -4,8 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:md2_tab_indicator/md2_tab_indicator.dart';
-import 'package:thingaha/helper/logout.dart';
-import 'package:thingaha/helper/slivertabs.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:thingaha/screen/schoolscreen.dart';
+import 'package:thingaha/util/logout.dart';
+import 'package:thingaha/widgets/appbar.dart';
+import 'package:thingaha/widgets/bottom_sheet.dart';
+import 'package:thingaha/widgets/slivertabs.dart';
 import 'package:thingaha/model/donatordonations.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/model/student_donation_status.dart';
@@ -29,14 +33,14 @@ class _HomeState extends State<Home> {
     Container(),
     AttendanceScreen(),
     AllStudents(),
-    Profile(),
+    SchoolsScreen(),
   ];
 
   var titles = [
     txt_donations,
     "Attendance",
     txt_all_students,
-    txt_acc,
+    txt_school,
   ];
 
   ScrollController _scrollController;
@@ -56,92 +60,106 @@ class _HomeState extends State<Home> {
     return Consumer(
       builder: (context, ref, child) {
         final appTheme = ref(appThemeProvider);
-        return Scaffold(
-          bottomNavigationBar: _bottomNavigationBar(appTheme),
-          body: Consumer(
-            builder: (context, watch, child) {
-              AsyncValue<DonatorDonations> donatorDonations =
-                  watch(fetchDonationList);
+        //WidgetsBinding.instance.renderView.automaticSystemUiAdjustment = false;
+        // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        //   statusBarBrightness: Brightness.dark,
+        //   systemNavigationBarColor: Colors.transparent,
+        //   statusBarColor: Colors.transparent,
+        //   statusBarIconBrightness: Brightness.dark,
+        //   systemNavigationBarIconBrightness: Brightness.dark,
+        // ));
 
-              if (donatorDonations != null) {
-                return donatorDonations?.when(
-                    loading: () => Scaffold(
-                            body: Center(
-                          child: Column(
-                            children: [
-                              SvgPicture.asset('images/loading.svg',
-                                  semanticsLabel: 'Reading from memory card.'),
-                              SizedBox(
-                                width: 36,
-                                height: 36,
-                                child: LoadingIndicator(
-                                  indicatorType: Indicator.ballBeat,
-                                  color: kPrimaryColor,
+        SetStatusBarAndNavBarColor().mainUI(context, appTheme);
+
+        return CupertinoScaffold(
+          body: Scaffold(
+            bottomNavigationBar: _bottomNavigationBar(appTheme),
+            body: Consumer(
+              builder: (context, watch, child) {
+                AsyncValue<DonatorDonations> donatorDonations =
+                    watch(fetchDonationList);
+
+                if (donatorDonations != null) {
+                  return donatorDonations?.when(
+                      loading: () => Scaffold(
+                              body: Center(
+                            child: Column(
+                              children: [
+                                SvgPicture.asset('images/loading.svg',
+                                    semanticsLabel:
+                                        'Reading from memory card.'),
+                                SizedBox(
+                                  width: 36,
+                                  height: 36,
+                                  child: LoadingIndicator(
+                                    indicatorType: Indicator.ballBeat,
+                                    color: kPrimaryColor,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "Reading from memory card.\nPlease do not remove memory card.",
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.subtitle2,
-                              ),
-                            ],
-                          ),
-                        )),
-                    error: (err, stack) {
-                      String assetName = 'images/bug.svg';
-                      print(stack);
-                      return Scaffold(
-                          body: Center(
-                              child: SvgPicture.asset(assetName,
-                                  semanticsLabel:
-                                      'Oops! Something went wrong.')));
-                    },
-                    data: (donatorDonations) {
-                      List<Donation> donations =
-                          donatorDonations.data.donations;
-                      //print(donations);
-                      if (donations.isEmpty) {
-                        String assetName = 'images/blank.svg';
+                                Text(
+                                  "Reading from memory card.\nPlease do not remove memory card.",
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.subtitle2,
+                                ),
+                              ],
+                            ),
+                          )),
+                      error: (err, stack) {
+                        String assetName = 'images/bug.svg';
+                        print(stack);
                         return Scaffold(
-                            body: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              child: SizedBox(
-                                height: 500,
-                                width: 500,
+                            body: Center(
                                 child: SvgPicture.asset(assetName,
                                     semanticsLabel:
-                                        'Oops! Something went wrong.'),
+                                        'Oops! Something went wrong.')));
+                      },
+                      data: (donatorDonations) {
+                        List<Donation> donations =
+                            donatorDonations.data.donations;
+                        //print(donations);
+                        if (donations.isEmpty) {
+                          String assetName = 'images/blank.svg';
+                          return Scaffold(
+                              body: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Container(
+                                child: SizedBox(
+                                  height: 500,
+                                  width: 500,
+                                  child: SvgPicture.asset(assetName,
+                                      semanticsLabel:
+                                          'Oops! Something went wrong.'),
+                                ),
                               ),
-                            ),
-                            Container(
-                                child: Text("There's no data... hmmm...")),
-                            ElevatedButton.icon(
-                              onPressed: logout,
-                              label: Text("Logout"),
-                              icon: Icon(Icons.login_rounded),
-                            ),
-                          ],
-                        ));
-                      }
+                              Container(
+                                  child: Text("There's no data... hmmm...")),
+                              ElevatedButton.icon(
+                                onPressed: logout,
+                                label: Text("Logout"),
+                                icon: Icon(Icons.login_rounded),
+                              ),
+                            ],
+                          ));
+                        }
 
-                      var studentListInfo = groupBy(donations, (e) {
-                        return e.student.name;
+                        var studentListInfo = groupBy(donations, (e) {
+                          return e.student.name;
+                        });
+
+                        var studentNameList = studentListInfo.keys.toList();
+
+                        return (_screenIndex == 0)
+                            ? _buildHomeShell(
+                                studentNameList, donations, appTheme)
+                            : screens[_screenIndex];
                       });
-
-                      var studentNameList = studentListInfo.keys.toList();
-
-                      return (_screenIndex == 0)
-                          ? _buildHomeShell(
-                              studentNameList, donations, appTheme)
-                          : screens[_screenIndex];
-                    });
-              } else {
-                return Scaffold();
-              }
-            },
+                } else {
+                  return Scaffold();
+                }
+              },
+            ),
           ),
         );
       },
@@ -157,41 +175,12 @@ class _HomeState extends State<Home> {
               controller: _scrollController,
               headerSliverBuilder: (context, value) {
                 return [
-                  SliverAppBar(
-                      backwardsCompatibility: false,
-                      systemOverlayStyle: SystemUiOverlayStyle(
-                        statusBarColor:
-                            appBarColor(context, _isScrolled, appTheme),
-                        statusBarIconBrightness:
-                            appStatusBarIconBrightness(context, appTheme),
-                      ),
-                      backgroundColor:
-                          appBarColor(context, _isScrolled, appTheme),
-                      pinned: true,
-                      expandedHeight: 100,
-                      title: AnimatedOpacity(
-                        duration: Duration(milliseconds: 300),
-                        opacity: _isScrolled ? 1.0 : 0.0,
-                        curve: Curves.ease,
-                        child: Text(titles[_screenIndex],
-                            style: Theme.of(context).textTheme.headline5),
-                      ),
-                      automaticallyImplyLeading: false,
-                      elevation: (_screenIndex == 0)
-                          ? 0
-                          : (_isScrolled)
-                              ? 1.5
-                              : 0,
-                      flexibleSpace: AnimatedOpacity(
-                        duration: Duration(milliseconds: 300),
-                        opacity: _isScrolled ? 0.0 : 1.0,
-                        curve: Curves.ease,
-                        child: Container(
-                          padding: EdgeInsets.only(left: 32.0, top: 92.0),
-                          child: Text(titles[_screenIndex],
-                              style: Theme.of(context).textTheme.headline4),
-                        ),
-                      )),
+                  ThingahaAppBar(
+                    appTheme: appTheme,
+                    isScrolled: _isScrolled,
+                    screenIndex: _screenIndex,
+                    title: titles[_screenIndex],
+                  ),
                   (_screenIndex == 0)
                       ? SliverPersistentHeader(
                           delegate: SliverAppBarDelegate(
@@ -214,7 +203,7 @@ class _HomeState extends State<Home> {
                                         style: TextStyle(
                                             fontFamilyFallback: ['Sanpya'],
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 16,
+                                            fontSize: 14,
                                             color: Theme.of(context)
                                                 .textTheme
                                                 .subtitle2
@@ -285,9 +274,9 @@ class _HomeState extends State<Home> {
       setState(() {});
     });
     var birthday, age, addressDivision, photoURL;
-    print(donationsForCurrentPage[0].student.birthDate);
+    //print(donationsForCurrentPage[0].student.birthDate);
     if (donationsForCurrentPage != null) {
-      print(donationsForCurrentPage[0].student.birthDate);
+      //print(donationsForCurrentPage[0].student.birthDate);
       if (donationsForCurrentPage[0].student.birthDate != null &&
           donationsForCurrentPage[0].student.birthDate != "") {
         birthday = DateFormat.yMMMMd('en_US')
@@ -476,7 +465,10 @@ class _HomeState extends State<Home> {
                           donationsForCurrentPage[index - 1].status,
                           textAlign: TextAlign.end,
                           style: TextStyle(
-                            color: Theme.of(context).textTheme.subtitle2.color,
+                            color: moneyStatusColor(
+                                context,
+                                donationsForCurrentPage[index - 1].status,
+                                appTheme),
                           ),
                         ),
                       ),
@@ -567,15 +559,9 @@ class _HomeState extends State<Home> {
                   Text(
                     titles[itemIndex],
                     style: TextStyle(
-                      color: (_screenIndex == itemIndex)
-                          ? Theme.of(context).primaryColor
-                          : (appTheme == ThemeMode.light ||
-                                  appTheme == ThemeMode.system &&
-                                      MediaQuery.of(context)
-                                              .platformBrightness ==
-                                          Brightness.light)
-                              ? Colors.black
-                              : cloudColor,
+                      fontSize: 12,
+                      color: bottomAppBarTextColor(
+                          context, itemIndex, _screenIndex, appTheme),
                     ),
                   ),
                 ],

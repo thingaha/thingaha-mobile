@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/style_constants.dart';
+import 'package:thingaha/widgets/appbar.dart';
+import 'package:thingaha/widgets/bottom_sheet.dart';
 
 class AllStudents extends StatefulWidget {
   @override
@@ -47,7 +50,14 @@ class _AllStudentsState extends State<AllStudents> {
             return NestedScrollView(
                 controller: _scrollController,
                 headerSliverBuilder: (context, isInnerBoxScrolled) {
-                  return [_buildSliverAppBar(appTheme)];
+                  return [
+                    ThingahaAppBar(
+                      appTheme: appTheme,
+                      isScrolled: _isScrolled,
+                      screenIndex: 2,
+                      title: "Students",
+                    ),
+                  ];
                 },
                 body: ListView(
                   children: List.generate(itemCount, (index) {
@@ -144,46 +154,6 @@ class _AllStudentsState extends State<AllStudents> {
         );
       },
     );
-  }
-
-  _buildSliverAppBar(appTheme) {
-    return SliverAppBar(
-        pinned: true,
-        backgroundColor: appBarColor(context, _isScrolled, appTheme),
-        expandedHeight: 80,
-        title: AnimatedOpacity(
-          duration: Duration(milliseconds: 300),
-          opacity: _isScrolled ? 1.0 : 0.0,
-          curve: Curves.ease,
-          child: Text(
-            "Students",
-            style: Theme.of(context).textTheme.headline5,
-          ),
-        ),
-        actions: [
-          Container(
-              margin: EdgeInsets.only(right: 16.0),
-              child: IconButton(
-                  icon: Icon(
-                    Icons.search_rounded,
-                    color: searchIconColor(context, appTheme),
-                  ),
-                  onPressed: () {})),
-        ],
-        automaticallyImplyLeading: false,
-        elevation: _isScrolled ? 1.5 : 0,
-        flexibleSpace: AnimatedOpacity(
-          duration: Duration(milliseconds: 300),
-          opacity: _isScrolled ? 0.0 : 1.0,
-          curve: Curves.ease,
-          child: Container(
-            padding: EdgeInsets.only(left: 32.0, top: 92.0, right: 32.0),
-            child: Text(
-              "Students",
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ),
-        ));
   }
 
   _studentLoading(String message) {

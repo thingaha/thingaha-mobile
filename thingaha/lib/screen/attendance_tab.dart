@@ -5,8 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/style_constants.dart';
+import 'package:thingaha/widgets/appbar.dart';
+import 'package:thingaha/widgets/bottom_sheet.dart';
 
 class AttendanceScreen extends StatefulWidget {
   @override
@@ -51,7 +54,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             return CustomScrollView(
               controller: _scrollController,
               slivers: [
-                _buildSliverAppBar(appTheme),
+                ThingahaAppBar(
+                  appTheme: appTheme,
+                  isScrolled: _isScrolled,
+                  screenIndex: 1,
+                  title: "Attendances",
+                ),
+                //_buildSliverAppBar(appTheme),
                 // We Put a dummy DataTable to display only the Header
                 // becuase we want the header to be sticky when user scrolled.
                 SliverStickyHeader(
@@ -270,31 +279,5 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       child: SvgPicture.asset(assetName,
           semanticsLabel: 'Oops! Something went wrong.'),
     );
-  }
-
-  _buildSliverAppBar(appTheme) {
-    return SliverAppBar(
-        backgroundColor: appBarColor(context, _isScrolled, appTheme),
-        pinned: true,
-        expandedHeight: 100,
-        title: AnimatedOpacity(
-          duration: Duration(milliseconds: 300),
-          opacity: _isScrolled ? 1.0 : 0.0,
-          curve: Curves.ease,
-          child:
-              Text("Attendances", style: Theme.of(context).textTheme.headline5),
-        ),
-        automaticallyImplyLeading: false,
-        elevation: 0,
-        flexibleSpace: AnimatedOpacity(
-          duration: Duration(milliseconds: 300),
-          opacity: _isScrolled ? 0.0 : 1.0,
-          curve: Curves.ease,
-          child: Container(
-            padding: EdgeInsets.only(left: 32.0, top: 92.0, right: 32.0),
-            child: Text("Attendances",
-                style: Theme.of(context).textTheme.headline4),
-          ),
-        ));
   }
 }

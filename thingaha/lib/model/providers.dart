@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thingaha/helper/logout.dart';
+import 'package:thingaha/model/schools.dart';
+import 'package:thingaha/util/logout.dart';
 import 'package:thingaha/model/attendances.dart';
 import 'package:thingaha/model/donatordonations.dart';
 import 'package:thingaha/model/userinfo.dart';
@@ -42,6 +43,8 @@ final appThemeFromLocalProvider = FutureProvider<ThemeMode>((ref) async {
   } else {
     theme = ThemeMode.system;
   }
+  print(themeString);
+  print("Theme is $theme");
   ref.watch(appThemeProvider.notifier).setTheme(theme);
 
   return;
@@ -59,11 +62,12 @@ class UserIDState extends StateNotifier<int> {
 
 // -------------------------------------------------------
 
-final fetchDisplayNamefromLocalProvider = FutureProvider<String>((ref) async {
+final fetchDisplayNamefromLocalProvider =
+    FutureProvider.autoDispose<String>((ref) async {
   SharedPreferences localStorage = await SharedPreferences.getInstance();
 
   var name = localStorage.getString(StaticStrings.keyDisplayName);
-
+  ref.maintainState = true;
   return name;
 });
 
@@ -74,8 +78,11 @@ final fetchUserDetail = FutureProvider.autoDispose<UserInfo>((ref) async {
   int userID = localStorage.getInt(StaticStrings.keyUserID);
   var userInfoResponse = await Network().getData("${APIs.getUserByID}$userID");
   var body = json.decode(utf8.decode(userInfoResponse.bodyBytes));
+  if (body['msg'] == "Token has expired") {
+    logout();
+  }
   //print(utf8.decode(userInfoResponse.bodyBytes));
-  ref.maintainState = true;
+  //ref.maintainState = true;
   var displayName = body['data']['user']['display_name'];
   localStorage.setString(StaticStrings.keyDisplayName, displayName);
 
@@ -171,4 +178,30 @@ final studentPage = FutureProvider.family<std.Students, int>((ref, id) async {
   }
 
   return std.studentsFromJson(utf8.decode(response.bodyBytes));
+});
+
+final schoolPageCount = FutureProvider<int>((ref) async {
+  var response = await Network().getData(APIs.getAllSchools);
+  var body = json.decode(utf8.decode(response.bodyBytes));
+  //print(utf8.decode(response.bodyBytes));
+  var pages = 0;
+  if (body['msg'] == "Token has expired") {
+    logout();
+  } else {
+    pages = body['data']['pages'];
+    //print(pages);
+  }
+  return pages;
+});
+
+final schoolPage = FutureProvider.family<Schools, int>((ref, id) async {
+  var response = await Network().getData("${APIs.getSchoolsByPage}${id + 1}");
+  //print(attendanceResponse.body);
+  var body = json.decode(utf8.decode(response.bodyBytes));
+  //print(body);
+  if (body['msg'] == "Token has expired") {
+    logout();
+  }
+
+  return schoolsFromJson(utf8.decode(response.bodyBytes));
 });

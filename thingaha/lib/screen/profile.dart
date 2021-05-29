@@ -351,11 +351,9 @@ class _ProfileState extends State<Profile> {
     var themeString;
     if (result == ThemeMode.light) {
       themeString = StaticStrings.themeLight;
-    } else if (result == ThemeMode.light) {
+    } else if (result == ThemeMode.dark) {
       themeString = StaticStrings.themeDark;
-    } else if (result == ThemeMode.light) {
-      themeString = StaticStrings.themeSystem;
-    } else {
+    } else if (result == ThemeMode.system) {
       themeString = StaticStrings.themeSystem;
     }
     localStorage.setString(StaticStrings.keyAppTheme, themeString);

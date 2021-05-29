@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 const kPrimaryColor = Color(0xFF00B900);
 const kAppBarWhiteWithALittleTransparency = Color(0xeeffffff);
@@ -15,6 +16,8 @@ const lighterDarkColor = Color(0xff292B2E);
 
 const cloudColor = Color(0xfff6f6f6);
 const ccColor = Color(0xff525252);
+
+const navBarIconColorLight = Color(0xff5f6369);
 
 Color borderColor(context, selectedAppTheme) {
   return (selectedAppTheme == ThemeMode.light ||
@@ -54,12 +57,36 @@ Color cardBackgroundColor(context, selectedAppTheme) {
       : highElevatedDark;
 }
 
+Color greyCardBackgroundColor(context, selectedAppTheme) {
+  return (selectedAppTheme == ThemeMode.light ||
+          selectedAppTheme == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.light)
+      ? Color(0xffefeef0)
+      : Color(0xff1f1e22);
+}
+
 Color studentPhotoDummyColor(context, selectedAppTheme) {
   return (selectedAppTheme == ThemeMode.light ||
           selectedAppTheme == ThemeMode.system &&
               MediaQuery.of(context).platformBrightness == Brightness.light)
       ? Colors.grey[200]
       : lighterDarkColor;
+}
+
+Color textFieldFillColor(context, selectedAppTheme) {
+  return (selectedAppTheme == ThemeMode.light ||
+          selectedAppTheme == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.light)
+      ? Colors.grey[50]
+      : lighterDarkColor;
+}
+
+Color primaryColors(context, selectedAppTheme) {
+  return (selectedAppTheme == ThemeMode.light ||
+          selectedAppTheme == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.light)
+      ? kPrimaryColor
+      : kprimaryDarkColor;
 }
 
 IconData bottomAppBarIcon(itemIndex, screenIndex) {
@@ -76,15 +103,15 @@ IconData bottomAppBarIcon(itemIndex, screenIndex) {
                   ? Icons.badge
                   : Icons.badge
               : (screenIndex == 3)
-                  ? Icons.account_circle_rounded
-                  : Icons.account_circle_outlined;
+                  ? Icons.school_rounded
+                  : Icons.school_outlined;
 }
 
 Color searchIconColor(context, selectedAppTheme) {
   return (selectedAppTheme == ThemeMode.light ||
           selectedAppTheme == ThemeMode.system &&
               MediaQuery.of(context).platformBrightness == Brightness.light)
-      ? Colors.black
+      ? navBarIconColorLight
       : Colors.grey;
 }
 
@@ -95,7 +122,18 @@ Color bottomAppBarIconColor(context, itemIndex, screenIndex, appTheme) {
               appTheme == ThemeMode.system &&
                   MediaQuery.of(context).platformBrightness ==
                       Brightness.light) // Light Theme Or System Light theme
-          ? Colors.black
+          ? navBarIconColorLight
+          : Colors.grey;
+}
+
+Color bottomAppBarTextColor(context, itemIndex, screenIndex, appTheme) {
+  return (screenIndex == itemIndex)
+      ? Theme.of(context).primaryColor
+      : (appTheme == ThemeMode.light ||
+              appTheme == ThemeMode.system &&
+                  MediaQuery.of(context).platformBrightness ==
+                      Brightness.light) // Light Theme Or System Light theme
+          ? navBarIconColorLight
           : Colors.grey;
 }
 
@@ -105,4 +143,132 @@ Brightness appStatusBarIconBrightness(context, selectedAppTheme) {
               MediaQuery.of(context).platformBrightness == Brightness.light)
       ? Brightness.dark
       : Brightness.light;
+}
+
+String logoImage(context, selectedAppTheme) {
+  return (selectedAppTheme == ThemeMode.light ||
+          selectedAppTheme == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.light)
+      ? 'images/logo_jedi.png'
+      : 'images/logo_sith.png';
+}
+
+Color moneyStatusColor(context, status, selectedAppTheme) {
+  return (status == 'pending')
+      ? (selectedAppTheme == ThemeMode.light ||
+              selectedAppTheme == ThemeMode.system &&
+                  MediaQuery.of(context).platformBrightness == Brightness.light)
+          ? Colors.red
+          : Colors.red.shade300
+      : Colors.green;
+}
+
+Color modalSheetBackgroundColor(context, selectedAppTheme) {
+  return (selectedAppTheme == ThemeMode.light ||
+          selectedAppTheme == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.light)
+      ? Colors.white
+      : Color(0xff18171b);
+}
+
+Color modalSheetAppBarColor(context, selectedAppTheme) {
+  return (selectedAppTheme == ThemeMode.light ||
+          selectedAppTheme == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.light)
+      ? Colors.white
+      : Color(0xff1d1c20);
+}
+
+Color dividerColor(context, selectedAppTheme) {
+  return (selectedAppTheme == ThemeMode.light ||
+          selectedAppTheme == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.light)
+      ? Color(0xffdddcde)
+      : Color(0xff403f43);
+}
+
+Color buttonTextColor(context, selectedAppTheme) {
+  return (selectedAppTheme == ThemeMode.light ||
+          selectedAppTheme == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.light)
+      ? Colors.white
+      : Colors.black;
+}
+
+Color themeChooserBG(context, selectedAppTheme) {
+  return (selectedAppTheme == ThemeMode.light ||
+          selectedAppTheme == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.light)
+      ? Color(0xfff7f7f7)
+      : Color(0xff0e0d0f);
+}
+
+Color themeChooserColumn(context, selectedAppTheme) {
+  return (selectedAppTheme == ThemeMode.light ||
+          selectedAppTheme == ThemeMode.system &&
+              MediaQuery.of(context).platformBrightness == Brightness.light)
+      ? Colors.white
+      : Color(0xff18171b);
+}
+
+class SetStatusBarAndNavBarColor {
+  void accountScreen(context, appTheme) {
+    SystemChrome.setSystemUIOverlayStyle((appTheme == ThemeMode.light ||
+            appTheme == ThemeMode.system &&
+                MediaQuery.of(context).platformBrightness == Brightness.light)
+        ? SystemUiOverlayStyle(
+            //statusBarBrightness: Brightness.dark,
+            systemNavigationBarColor: Colors.white,
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          )
+        : SystemUiOverlayStyle(
+            //statusBarBrightness: Brightness.dark,
+            systemNavigationBarColor: Color(0xff18171b),
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarIconBrightness: Brightness.light,
+          ));
+  }
+
+  void themeChooser(context, appTheme) {
+    SystemChrome.setSystemUIOverlayStyle((appTheme == ThemeMode.light ||
+            appTheme == ThemeMode.system &&
+                MediaQuery.of(context).platformBrightness == Brightness.light)
+        ? SystemUiOverlayStyle(
+            //statusBarBrightness: Brightness.dark,
+            systemNavigationBarColor: Color(0xfff7f7f7),
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          )
+        : SystemUiOverlayStyle(
+            //statusBarBrightness: Brightness.dark,
+            systemNavigationBarColor: Color(0xff0e0d0f),
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarIconBrightness: Brightness.light,
+          ));
+  }
+
+  void mainUI(context, appTheme) {
+    SystemChrome.setSystemUIOverlayStyle((appTheme == ThemeMode.light ||
+            appTheme == ThemeMode.system &&
+                MediaQuery.of(context).platformBrightness == Brightness.light)
+        ? SystemUiOverlayStyle(
+            //statusBarBrightness: Brightness.dark,
+            systemNavigationBarColor: Colors.white,
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.dark,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          )
+        : SystemUiOverlayStyle(
+            //statusBarBrightness: Brightness.dark,
+            systemNavigationBarColor: highElevatedDark,
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarIconBrightness: Brightness.light,
+          ));
+  }
 }

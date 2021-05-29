@@ -23,7 +23,7 @@ String txt_date = "Date";
 String txt_status = "Status";
 String txt_monthly_donation_status = "Monthly donation status";
 String txt_donations = "Donations";
-String txt_school = "School";
+String txt_school = "Schools";
 String txt_parent = "Parent";
 String txt_parentOccupation = "Parent's Occupation";
 String txt_address = "Address";
@@ -45,4 +45,10 @@ class StaticStrings {
   static const String themeDisplayLight = "Jedi's";
   static const String themeDisplayDark = "Sith's";
   static const String themeDisplaySystem = "System's";
+
+  static const String actionAboutUs = "aboutUs";
+  static const String actionLanguage = "language";
+  static const String actionChangePassword = "changePassword";
+  static const String actionTheme = "theme";
+  static const String actionLogOut = "logOut";
 }

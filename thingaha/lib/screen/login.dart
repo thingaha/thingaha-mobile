@@ -33,46 +33,48 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, child) {
-      final appTheme = ref(appThemeProvider);
-      return GestureDetector(
-          onTap: () {
-            FocusScopeNode currentFocus = FocusScope.of(context);
+    return Scaffold(
+      appBar: AppBar(),
+      body: Consumer(builder: (context, ref, child) {
+        final appTheme = ref(appThemeProvider);
+        return GestureDetector(
+            onTap: () {
+              FocusScopeNode currentFocus = FocusScope.of(context);
 
-            if (!currentFocus.hasPrimaryFocus) {
-              currentFocus.unfocus();
-            }
-          },
-          child: SingleChildScrollView(
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              padding: EdgeInsets.only(
-                  top: 20.0, bottom: 10.0, left: 20.0, right: 20.0),
-              color: Colors.white,
-              child: Column(
-                children: <Widget>[
-                  ColorFiltered(
-                    colorFilter:
-                        ColorFilter.mode(Colors.black, BlendMode.screen),
-                    child: Image.asset(
-                      'images/logo.png',
+              if (!currentFocus.hasPrimaryFocus) {
+                currentFocus.unfocus();
+              }
+            },
+            child: SingleChildScrollView(
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                padding: EdgeInsets.only(
+                    top: 20.0, bottom: 10.0, left: 20.0, right: 20.0),
+                color: cardBackgroundColor(context, appTheme),
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(bottom: 64.0, top: 150.0),
+                      child: Image.asset(
+                        logoImage(context, appTheme),
+                      ),
                     ),
-                  ),
-                  Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 32.0),
-                      child: _buildLoginFields())
-                ],
+                    Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 32.0),
+                        child: _buildLoginFields(appTheme))
+                  ],
+                ),
               ),
-            ),
-          ));
-    });
+            ));
+      }),
+    );
   }
 
-  Widget _buildLoginFields() {
-    final emailTextField = _buildTextField(txt_email, false);
+  Widget _buildLoginFields(appTheme) {
+    final emailTextField = _buildTextField(txt_email, false, appTheme);
 
-    final passwordTextField = _buildTextField(txt_password, true);
+    final passwordTextField = _buildTextField(txt_password, true, appTheme);
 
     final loginButton = SizedBox(
       width: MediaQuery.of(context).size.width,
@@ -122,13 +124,11 @@ class _LoginState extends State<Login> {
           (_isLoading)
               ? Container(
                   margin: EdgeInsets.only(top: 32.0),
-                  child: Material(
-                    child: Text(
-                      "Shovelling coal into the server ...",
-                      style: TextStyle(
-                          fontSize: 10,
-                          color: Theme.of(context).textTheme.subtitle2.color),
-                    ),
+                  child: Text(
+                    "Shovelling coal into the server ...",
+                    style: TextStyle(
+                        fontSize: 10,
+                        color: Theme.of(context).textTheme.subtitle2.color),
                   ),
                 )
               : Container(),
@@ -137,35 +137,39 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _buildTextField(String label, bool isPassword) {
-    return Material(
-      child: TextFormField(
-        validator: (value) {
-          if (value.isEmpty) {
-            return txt_login_error_msg;
-          }
-          return null;
-        },
-        controller: (isPassword) ? pwdController : emailController,
-        keyboardType: (isPassword)
-            ? TextInputType.visiblePassword
-            : TextInputType.emailAddress,
-        decoration: InputDecoration(
-          labelText: label,
-          contentPadding: EdgeInsets.only(left: 10.0, bottom: 0.0),
-          filled: true,
-          fillColor: Colors.grey[50],
-          enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey[300])),
-          focusedBorder:
-              OutlineInputBorder(borderSide: BorderSide(color: kPrimaryColor)),
-          errorBorder:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-          focusedErrorBorder:
-              OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-        ),
-        obscureText: isPassword,
+  Widget _buildTextField(String label, bool isPassword, appTheme) {
+    return TextFormField(
+      validator: (value) {
+        if (value.isEmpty) {
+          return txt_login_error_msg;
+        }
+        return null;
+      },
+      style: Theme.of(context).textTheme.subtitle2,
+      controller: (isPassword) ? pwdController : emailController,
+      keyboardType: (isPassword)
+          ? TextInputType.visiblePassword
+          : TextInputType.emailAddress,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: Theme.of(context).textTheme.subtitle2,
+        contentPadding: EdgeInsets.only(left: 10.0, bottom: 0.0),
+        filled: true,
+        fillColor: textFieldFillColor(context, appTheme),
+        enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: borderColor(context, appTheme)),
+            borderRadius: BorderRadius.circular(12)),
+        focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: primaryColors(context, appTheme)),
+            borderRadius: BorderRadius.circular(12)),
+        errorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red),
+            borderRadius: BorderRadius.circular(12)),
+        focusedErrorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red),
+            borderRadius: BorderRadius.circular(12)),
       ),
+      obscureText: isPassword,
     );
   }
 
