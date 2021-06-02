@@ -10,6 +10,8 @@ import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:thingaha/widgets/appbar.dart';
 import 'package:thingaha/widgets/bottom_sheet.dart';
+import 'package:thingaha/widgets/error.dart';
+import 'package:thingaha/widgets/loading.dart';
 
 class AttendanceScreen extends StatefulWidget {
   @override
@@ -48,8 +50,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       builder: (context, watch, child) {
         final appTheme = watch(appThemeProvider);
         return watch(attendancePageCount).when(
-          loading: () => _attendanceLoading("Swapping Time and Space ..."),
-          error: (err, stack) => _attendanceError(err, stack),
+          loading: () =>
+              AttendanceLoadingWidget(message: "Swapping Time and Space ..."),
+          error: (err, stack) =>
+              ErrorMessageWidget(errorMessage: err, log: stack),
           data: (itemCount) {
             return CustomScrollView(
               controller: _scrollController,
@@ -156,11 +160,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                               loading: () => Container(
                                     width: MediaQuery.of(context).size.width,
                                     height: MediaQuery.of(context).size.height,
-                                    child: _attendanceLoading(
-                                        "Were Ross and Rachel on a break? ..."),
+                                    child: AttendanceLoadingWidget(
+                                        message:
+                                            "Were Ross and Rachel on a break? ..."),
                                   ),
-                              error: (err, stack) =>
-                                  _attendanceError(err, stack),
+                              error: (err, stack) => ErrorMessageWidget(
+                                  errorMessage: err, log: stack),
                               data: (att) {
                                 var list = att.data.attendances.toList();
                                 return DataTable(
@@ -244,40 +249,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
           },
         );
       },
-    );
-  }
-
-  _attendanceLoading(String message) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 36,
-              height: 36,
-              child: LoadingIndicator(
-                indicatorType: Indicator.orbit,
-                color: kPrimaryColor,
-              ),
-            ),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.subtitle2,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  _attendanceError(err, stack) {
-    print(stack);
-    String assetName = 'images/bug.svg';
-    return Center(
-      child: SvgPicture.asset(assetName,
-          semanticsLabel: 'Oops! Something went wrong.'),
     );
   }
 }

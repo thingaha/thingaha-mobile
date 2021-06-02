@@ -2,20 +2,19 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:md2_tab_indicator/md2_tab_indicator.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:thingaha/screen/schoolscreen.dart';
 import 'package:thingaha/util/logout.dart';
 import 'package:thingaha/widgets/appbar.dart';
-import 'package:thingaha/widgets/bottom_sheet.dart';
+import 'package:thingaha/widgets/error.dart';
+import 'package:thingaha/widgets/loading.dart';
 import 'package:thingaha/widgets/slivertabs.dart';
 import 'package:thingaha/model/donatordonations.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/model/student_donation_status.dart';
 import 'package:thingaha/screen/all_students.dart';
 import 'package:thingaha/screen/attendance_tab.dart';
-import 'package:thingaha/screen/profile.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -60,14 +59,6 @@ class _HomeState extends State<Home> {
     return Consumer(
       builder: (context, ref, child) {
         final appTheme = ref(appThemeProvider);
-        //WidgetsBinding.instance.renderView.automaticSystemUiAdjustment = false;
-        // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        //   statusBarBrightness: Brightness.dark,
-        //   systemNavigationBarColor: Colors.transparent,
-        //   statusBarColor: Colors.transparent,
-        //   statusBarIconBrightness: Brightness.dark,
-        //   systemNavigationBarIconBrightness: Brightness.dark,
-        // ));
 
         SetStatusBarAndNavBarColor().mainUI(context, appTheme);
 
@@ -81,67 +72,15 @@ class _HomeState extends State<Home> {
 
                 if (donatorDonations != null) {
                   return donatorDonations?.when(
-                      loading: () => Scaffold(
-                              body: Center(
-                            child: Column(
-                              children: [
-                                SvgPicture.asset('images/loading.svg',
-                                    semanticsLabel:
-                                        'Reading from memory card.'),
-                                SizedBox(
-                                  width: 36,
-                                  height: 36,
-                                  child: LoadingIndicator(
-                                    indicatorType: Indicator.ballBeat,
-                                    color: kPrimaryColor,
-                                  ),
-                                ),
-                                Text(
-                                  "Reading from memory card.\nPlease do not remove memory card.",
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.subtitle2,
-                                ),
-                              ],
-                            ),
-                          )),
-                      error: (err, stack) {
-                        String assetName = 'images/bug.svg';
-                        print(stack);
-                        return Scaffold(
-                            body: Center(
-                                child: SvgPicture.asset(assetName,
-                                    semanticsLabel:
-                                        'Oops! Something went wrong.')));
-                      },
+                      loading: () => MainLoadingWidget(),
+                      error: (err, stack) =>
+                          ErrorMessageWidget(errorMessage: err, log: stack),
                       data: (donatorDonations) {
                         List<Donation> donations =
                             donatorDonations.data.donations;
                         //print(donations);
                         if (donations.isEmpty) {
-                          String assetName = 'images/blank.svg';
-                          return Scaffold(
-                              body: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                child: SizedBox(
-                                  height: 500,
-                                  width: 500,
-                                  child: SvgPicture.asset(assetName,
-                                      semanticsLabel:
-                                          'Oops! Something went wrong.'),
-                                ),
-                              ),
-                              Container(
-                                  child: Text("There's no data... hmmm...")),
-                              ElevatedButton.icon(
-                                onPressed: logout,
-                                label: Text("Logout"),
-                                icon: Icon(Icons.login_rounded),
-                              ),
-                            ],
-                          ));
+                          return SomeThingWentWrong();
                         }
 
                         var studentListInfo = groupBy(donations, (e) {

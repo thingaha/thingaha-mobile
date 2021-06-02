@@ -15,39 +15,46 @@ import 'package:thingaha/util/style_constants.dart';
 class ProfileAndSettings extends ConsumerWidget {
   @override
   Widget build(BuildContext rootContext, ScopedReader watch) {
-    final appTheme = watch(appThemeProvider);
-
+    final appT = watch(appThemeProvider);
+    print("App Theme is $appT");
     return WillPopScope(
       onWillPop: () async {
-        SetStatusBarAndNavBarColor().mainUI(rootContext, appTheme);
+        SetStatusBarAndNavBarColor().mainUI(rootContext, appT);
         return true;
       },
       child: Material(
+        color: modalSheetBackgroundColor(rootContext, appT),
         child: Navigator(
           onGenerateRoute: (_) => MaterialPageRoute(
             builder: (context2) => Builder(
-              builder: (context) => Scaffold(
-                backgroundColor: modalSheetBackgroundColor(context, appTheme),
-                appBar: AppBar(
-                  backgroundColor: modalSheetAppBarColor(context, appTheme),
-                  title: Text(
-                    "Account",
-                    style: Theme.of(context).textTheme.headline6,
-                  ),
-                  centerTitle: true,
-                  elevation: 0,
-                  automaticallyImplyLeading: false,
-                  actions: [
-                    TextButton(
-                        onPressed: () {
-                          SetStatusBarAndNavBarColor()
-                              .mainUI(context, appTheme);
-                          Navigator.of(rootContext).pop();
-                        },
-                        child: Text("Done")),
-                  ],
-                ),
-                body: accountChild(rootContext, context, appTheme),
+              builder: (context) => Consumer(
+                builder: (context, ref, child) {
+                  final appTheme = ref(appThemeProvider);
+                  return Scaffold(
+                    backgroundColor:
+                        modalSheetBackgroundColor(context, appTheme),
+                    appBar: AppBar(
+                      backgroundColor: modalSheetAppBarColor(context, appTheme),
+                      title: Text(
+                        "Account",
+                        style: Theme.of(rootContext).textTheme.headline6,
+                      ),
+                      centerTitle: true,
+                      elevation: 0,
+                      automaticallyImplyLeading: false,
+                      actions: [
+                        TextButton(
+                            onPressed: () {
+                              SetStatusBarAndNavBarColor()
+                                  .mainUI(rootContext, appTheme);
+                              Navigator.of(rootContext).pop();
+                            },
+                            child: Text("Done")),
+                      ],
+                    ),
+                    body: accountChild(rootContext, context, appTheme),
+                  );
+                },
               ),
             ),
           ),
@@ -74,6 +81,7 @@ class ProfileAndSettings extends ConsumerWidget {
   }
 
   Widget profileCard(context, appTheme) {
+    print("app theme after child is $appTheme");
     return Container(
       height: 200,
       margin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0, top: 16.0),
@@ -430,5 +438,51 @@ class AppThemeSelector extends ConsumerWidget {
     localStorage.setString(StaticStrings.keyAppTheme, themeString);
     appThemeSelection.setTheme(result);
     print("current Theme is $result");
+  }
+}
+
+class ChangePassword extends StatelessWidget {
+  final BuildContext rootContext;
+
+  ChangePassword({Key key, this.rootContext}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final appTheme = ref(appThemeProvider);
+        return Material(
+            child: Scaffold(
+          backgroundColor: themeChooserBG(context, appTheme),
+          appBar: AppBar(
+            backgroundColor: themeChooserBG(context, appTheme),
+            title: Text(
+              "Change Password",
+              style: Theme.of(context).textTheme.headline6,
+            ),
+            centerTitle: true,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(
+                Icons.chevron_left_rounded,
+                color: searchIconColor(context, appTheme),
+              ),
+              onPressed: () {
+                SetStatusBarAndNavBarColor().accountScreen(context, appTheme);
+                Navigator.of(context).pop();
+              },
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    SetStatusBarAndNavBarColor().mainUI(context, appTheme);
+                    Navigator.of(rootContext).pop();
+                  },
+                  child: Text("Done")),
+            ],
+          ),
+        ));
+      },
+    );
   }
 }

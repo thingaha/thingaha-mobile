@@ -7,6 +7,8 @@ import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:thingaha/widgets/appbar.dart';
 import 'package:thingaha/widgets/bottom_sheet.dart';
+import 'package:thingaha/widgets/error.dart';
+import 'package:thingaha/widgets/loading.dart';
 
 class AllStudents extends StatefulWidget {
   @override
@@ -43,10 +45,11 @@ class _AllStudentsState extends State<AllStudents> {
       builder: (context, watch, child) {
         final appTheme = watch(appThemeProvider);
         return watch(studentPageCount).when(
-          loading: () => _studentLoading("Swapping Time and Space ..."),
-          error: (err, stack) => _studentError(err, stack),
+          loading: () =>
+              StudentsLoadingWidget(message: "Swapping Time and Space ..."),
+          error: (err, stack) =>
+              ErrorMessageWidget(errorMessage: err, log: stack),
           data: (itemCount) {
-            print("student Page is $itemCount pages long.");
             return NestedScrollView(
                 controller: _scrollController,
                 headerSliverBuilder: (context, isInnerBoxScrolled) {
@@ -67,10 +70,11 @@ class _AllStudentsState extends State<AllStudents> {
                             loading: () => Container(
                                   width: 100,
                                   height: 200,
-                                  child: _studentLoading(
-                                      "Changing lightbulb #$index"),
+                                  child: StudentsLoadingWidget(
+                                      message: "Changing lightbulb #$index"),
                                 ),
-                            error: (err, stack) => _studentError(err, stack),
+                            error: (err, stack) => ErrorMessageWidget(
+                                errorMessage: err, log: stack),
                             data: (att) {
                               var list = att.data.students.toList();
                               print("List is ${list.length} long");
@@ -153,38 +157,6 @@ class _AllStudentsState extends State<AllStudents> {
           },
         );
       },
-    );
-  }
-
-  _studentLoading(String message) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 36,
-            height: 36,
-            child: LoadingIndicator(
-              indicatorType: Indicator.ballPulseRise,
-              color: kPrimaryColor,
-            ),
-          ),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.subtitle2,
-          ),
-        ],
-      ),
-    );
-  }
-
-  _studentError(err, stack) {
-    print(stack);
-    String assetName = 'images/bug.svg';
-    return Center(
-      child: SvgPicture.asset(assetName,
-          semanticsLabel: 'Oops! Something went wrong.'),
     );
   }
 }

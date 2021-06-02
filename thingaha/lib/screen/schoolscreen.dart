@@ -6,6 +6,8 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:thingaha/widgets/appbar.dart';
+import 'package:thingaha/widgets/error.dart';
+import 'package:thingaha/widgets/loading.dart';
 
 class SchoolsScreen extends StatefulWidget {
   @override
@@ -56,37 +58,28 @@ class _SchoolsScreenState extends State<SchoolsScreen> {
           body: Consumer(
             builder: (context, watch, child) {
               return watch(schoolPageCount).when(
-                  loading: () => Container(
-                        child: Center(
-                          child: SizedBox(
-                            width: 36,
-                            height: 36,
-                            child: LoadingIndicator(
-                              indicatorType: Indicator.triangleSkewSpin,
-                              color: kPrimaryColor,
-                            ),
-                          ),
-                        ),
+                  loading: () => SchoolsLoading(
+                        message:
+                            "Computing the secret to life, the universe, and everything.",
                       ),
-                  error: (err, stack) {
-                    print(stack);
-                    return Container(
-                      child: Text(err),
-                    );
-                  },
+                  error: (err, stack) => ErrorMessageWidget(
+                        errorMessage: err,
+                        log: stack,
+                      ),
                   data: (itemCount) {
                     return Container(
                       child: ListView(
                         children: List.generate(itemCount, (schoolPageIndex) {
                           return Consumer(builder: (context, wololo, child) {
                             return wololo(schoolPage(schoolPageIndex)).when(
-                              error: (err, stack) {
-                                print(stack);
-                                return Container(
-                                  child: Text(err),
-                                );
-                              },
-                              loading: () => Container(),
+                              error: (err, stack) => ErrorMessageWidget(
+                                errorMessage: err,
+                                log: stack,
+                              ),
+                              loading: () => SchoolsLoading(
+                                message:
+                                    "We are not liable for any broken screens as a result of waiting.",
+                              ),
                               data: (data) {
                                 var schools = data.data.schools.toList();
                                 return Column(

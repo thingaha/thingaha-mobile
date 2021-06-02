@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:thingaha/widgets/bottom_sheet.dart';
@@ -19,16 +18,9 @@ class ThingahaAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-        //backwardsCompatibility: false,
-        // systemOverlayStyle: SystemUiOverlayStyle(
-        //   statusBarColor:
-        //       appBarColor(context, _isScrolled, appTheme),
-        //   statusBarIconBrightness:
-        //       appStatusBarIconBrightness(context, appTheme),
-        // ),
         backgroundColor: appBarColor(context, isScrolled, appTheme),
         pinned: true,
-        expandedHeight: 100,
+        expandedHeight: 120,
         title: AnimatedOpacity(
           duration: Duration(milliseconds: 300),
           opacity: isScrolled ? 1.0 : 0.0,
@@ -46,17 +38,6 @@ class ThingahaAppBar extends StatelessWidget {
                   color: searchIconColor(context, appTheme),
                 ),
                 onPressed: () {
-                  // (Platform.isIOS)
-                  //     ? CupertinoScaffold.showCupertinoModalBottomSheet(
-                  //         context: context,
-                  //         //enableDrag: false,
-                  //         builder: (context) => ProfileAndSettings(),
-                  //       )
-                  //     : showMaterialModalBottomSheet(
-                  //         context: context,
-                  //         // enableDrag: false,
-                  //         builder: (context) => ProfileAndSettings());
-
                   SetStatusBarAndNavBarColor().accountScreen(context, appTheme);
 
                   CupertinoScaffold.showCupertinoModalBottomSheet(
