@@ -1,0 +1,24 @@
+{
+    "app_title": "သင်္ဂဟ",
+    "page_title_donation": "လှူဒါန်းမှု",
+    "page_title_attendance": "တက်ရောက်မှု",
+    "page_title_students": "ကျောင်းသား/သူများ",
+    "page_title_schools": "စာသင်ကျောင်းများ",
+    "page_title_account": "မိမိ၏အကောင့်",
+
+    "age_sentence": "အသက် {} နှစ်",
+    "dob_sentence": "{} ခုနှစ်တွင် မွေးဖွားသည်",
+    "location_sentence": "from {}",
+
+    "table_title_month": "လ",
+    "table_title_amount": "အလှူငွေ (ကျပ်)",
+    "table_title_status": "ပြီး/မပြီး",
+
+    "btn_label_editprofile": "အချက်အလက်များ ပြုပြင်ရန်",
+    
+    "list_title_aboutus": "ကျွန်ုပ်တို့ အကြောင်း",
+    "list_title_language": "ဘာသာစကား",
+    "list_title_changepassword": "ပက်စဝေါ့ ပြောင်းရန်",
+    "list_title_appearance": "အသွင်အပြင်",
+    "list_title_logout": "ထွက်ရန်"
+}

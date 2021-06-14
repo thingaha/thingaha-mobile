@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_indicator/loading_indicator.dart';
@@ -51,7 +52,7 @@ class _SchoolsScreenState extends State<SchoolsScreen> {
                 appTheme: appTheme,
                 isScrolled: _isScrolled,
                 screenIndex: 3,
-                title: "Schools",
+                title: 'page_title_schools'.tr(),
               ),
             ];
           },

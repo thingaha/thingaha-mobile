@@ -118,10 +118,13 @@ class SchoolsLoading extends StatelessWidget {
                 color: kPrimaryColor,
               ),
             ),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.subtitle2,
+            Padding(
+              padding: EdgeInsets.only(top: 16.0),
+              child: Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.subtitle2,
+              ),
             ),
           ],
         ),

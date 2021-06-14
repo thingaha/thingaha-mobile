@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
@@ -58,7 +59,7 @@ class _AllStudentsState extends State<AllStudents> {
                       appTheme: appTheme,
                       isScrolled: _isScrolled,
                       screenIndex: 2,
-                      title: "Students",
+                      title: 'page_title_students'.tr(),
                     ),
                   ];
                 },

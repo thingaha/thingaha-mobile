@@ -53,6 +53,10 @@ class _SplashState extends State<Splash> {
 
   checkAuth(isLoggedIn) async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
+    if (localStorage.getString(StaticStrings.keyLocale) == null) {
+      localStorage.setString(StaticStrings.keyLocale, "en_US");
+    }
+
     var accessToken = localStorage.getString(StaticStrings.keyAccessToken);
 
     if (accessToken == null || accessToken == "") {

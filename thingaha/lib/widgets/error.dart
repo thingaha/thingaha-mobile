@@ -27,6 +27,11 @@ class ErrorMessageWidget extends StatelessWidget {
           "Oops! Something went wrong.",
           style: Theme.of(context).textTheme.subtitle2,
         ),
+        ElevatedButton.icon(
+          onPressed: logout(),
+          label: Text("Logout"),
+          icon: Icon(Icons.login_rounded),
+        ),
       ],
     )));
   }

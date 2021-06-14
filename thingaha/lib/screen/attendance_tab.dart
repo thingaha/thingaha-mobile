@@ -1,17 +1,21 @@
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:thingaha/model/attendances.dart';
 import 'package:thingaha/model/providers.dart';
+import 'package:thingaha/model/student.dart' as st;
 import 'package:thingaha/util/style_constants.dart';
 import 'package:thingaha/widgets/appbar.dart';
 import 'package:thingaha/widgets/bottom_sheet.dart';
 import 'package:thingaha/widgets/error.dart';
 import 'package:thingaha/widgets/loading.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class AttendanceScreen extends StatefulWidget {
   @override
@@ -62,7 +66,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                   appTheme: appTheme,
                   isScrolled: _isScrolled,
                   screenIndex: 1,
-                  title: "Attendances",
+                  title: "page_title_attendance".tr(),
                 ),
                 //_buildSliverAppBar(appTheme),
                 // We Put a dummy DataTable to display only the Header
@@ -251,4 +255,114 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       },
     );
   }
+
+  // Widget build(BuildContext context) {
+  //   return Consumer(
+  //     builder: (context, watch, child) {
+  //       final appTheme = watch(appThemeProvider);
+  //       var attendancePageData = [];
+  //       var studentPageData = [];
+  //       var attendancePageNos;
+  //       var studentPageNos;
+  //       watch(attendancePageCount).when(
+  //         data: (data) => attendancePageNos = data,
+  //         loading: () => 0,
+  //         error: (err, stack) => 0,
+  //       );
+
+  //       watch(studentPageCount).when(
+  //         data: (data) => studentPageNos = data,
+  //         loading: () => 0,
+  //         error: (err, stack) => 0,
+  //       );
+  //       if (attendancePageNos != null && studentPageNos != null) {
+  //         studentPageData = List.generate(
+  //             studentPageNos,
+  //             (index) => watch(studentPage(index)).when(
+  //                   data: (stdData) => stdData.data.students,
+  //                   loading: () => [],
+  //                   error: (err, stack) => [],
+  //                 )).expand((x) => x).toList();
+
+  //         attendancePageData = List.generate(
+  //             attendancePageNos,
+  //             (index) => watch(attendancePage(index)).when(
+  //                   data: (attData) => attData.data.attendances,
+  //                   loading: () => [],
+  //                   error: (err, stack) => [],
+  //                 )).expand((x) => x).toList();
+
+  //         if (attendancePageData != [] && studentPageData != []) {
+  //           // // var attendanceData = attendancePageData
+  //           // //     .map((pageData) => pageData.value.data)
+  //           // //     .toList();
+  //           // // var attendance =
+  //           // //     attendancePageData.map((data) => data.attendances).toList();
+  //           // var combinedList =
+  //           //     attendancePageData[0].expand((element) => element).toList();
+
+  //           //var curatedList = for(var item in attendancePageData) curatedList.add(item);
+
+  //           print(attendancePageData);
+  //           print(studentPageData.length);
+
+  //           var numOfStudents = studentPageData.length;
+  //           var studentIDs = studentPageData.map((data) => data.id).toList();
+  //           print(studentIDs);
+
+  //           Map<int, int> studentWithYear = {};
+  //           var std = <st.StudentByYear>[];
+
+  //           for (var studentData in studentPageData) {
+  //             for (var attendanceData in attendancePageData) {
+  //               int id = studentData.id;
+  //               if (studentData.id == attendanceData.id) {
+  //                 // Map<String, int> studentWithYear = {
+  //                 //   "id": id,
+  //                 //   "year": attendanceData.year,
+  //                 // };
+  //                 std.add(st.StudentByYear(id: id, year: attendanceData.year));
+  //                 studentWithYear[id] = attendanceData.year;
+  //               }
+  //             }
+  //           }
+  //           //var students = st.StudentByYear();
+  //           final groupedByYear = groupBy(std, (st.StudentByYear s) {
+  //             return s.year;
+  //           });
+
+  //           print(studentWithYear);
+  //           print(groupedByYear);
+  //           child = Container(
+  //             child: CustomScrollView(
+  //               controller: _scrollController,
+  //               slivers: [
+  //                 ThingahaAppBar(
+  //                   appTheme: appTheme,
+  //                   isScrolled: _isScrolled,
+  //                   screenIndex: 1,
+  //                   title: "Attendances",
+  //                 ),
+  //                 SliverToBoxAdapter(
+  //                   child: Container(
+  //                     margin: EdgeInsets.all(32.0),
+  //                     alignment: Alignment.center,
+  //                     child: Text(
+  //                         "Since 2016, a total of $numOfStudents students have been supported."),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         } else {
+  //           child = AttendanceLoadingWidget(message: "Just a little bit ...");
+  //         }
+  //       } else {
+  //         child = AttendanceLoadingWidget(message: "Just a little bit ...");
+  //       }
+
+  //       return child;
+  //     },
+  //   );
+  // }
 }

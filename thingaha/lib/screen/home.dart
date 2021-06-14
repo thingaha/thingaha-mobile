@@ -1,9 +1,11 @@
 import 'package:collection/collection.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:md2_tab_indicator/md2_tab_indicator.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:thingaha/screen/charts.dart';
 import 'package:thingaha/screen/schoolscreen.dart';
 import 'package:thingaha/util/logout.dart';
 import 'package:thingaha/widgets/appbar.dart';
@@ -36,10 +38,10 @@ class _HomeState extends State<Home> {
   ];
 
   var titles = [
-    txt_donations,
-    "Attendance",
-    txt_all_students,
-    txt_school,
+    'page_title_donation'.tr(),
+    'page_title_attendance',
+    "page_title_students",
+    "page_title_schools",
   ];
 
   ScrollController _scrollController;
@@ -59,9 +61,8 @@ class _HomeState extends State<Home> {
     return Consumer(
       builder: (context, ref, child) {
         final appTheme = ref(appThemeProvider);
-
         SetStatusBarAndNavBarColor().mainUI(context, appTheme);
-
+        print(EasyLocalization.of(context).locale);
         return CupertinoScaffold(
           body: Scaffold(
             bottomNavigationBar: _bottomNavigationBar(appTheme),
@@ -118,7 +119,7 @@ class _HomeState extends State<Home> {
                     appTheme: appTheme,
                     isScrolled: _isScrolled,
                     screenIndex: _screenIndex,
-                    title: titles[_screenIndex],
+                    title: 'page_title_donation'.tr(),
                   ),
                   (_screenIndex == 0)
                       ? SliverPersistentHeader(
@@ -420,64 +421,8 @@ class _HomeState extends State<Home> {
     );
   }
 
-  List<StudentDonationStatus> getStudentDonationStatusList() {
-    DonationStatus month1 = DonationStatus();
-    month1.month = "March";
-    month1.amount = "35,000";
-    month1.date = "-";
-    month1.donated = "Not yet";
-    month1.status = false;
-
-    DonationStatus month2 = DonationStatus();
-    month2.month = "February";
-    month2.amount = "35,000";
-    month2.date = "2 Feb 2021";
-    month2.donated = "Donated";
-    month2.status = true;
-
-    DonationStatus month3 = DonationStatus();
-    month3.month = "January";
-    month3.amount = "35,000";
-    month3.date = "1 Feb 2021";
-    month3.donated = "Donated";
-    month3.status = true;
-
-    DonationStatus month4 = DonationStatus();
-    month4.month = "December";
-    month4.amount = "35,000";
-    month4.date = "2 Dec 2020";
-    month4.donated = "Donated";
-    month4.status = true;
-
-    DonationStatus month5 = DonationStatus();
-    month5.month = "November";
-    month5.amount = "35,000";
-    month5.date = "1 Nov 2020";
-    month5.donated = "Donated";
-    month5.status = true;
-
-    StudentDonationStatus student1 = StudentDonationStatus();
-    student1.name = "Kyaw Kyaw";
-    student1.grade = "7th Grade";
-    student1.dateOfBirth = "23 April 1997";
-    student1.donationStatus = [month1, month2, month3, month4, month5];
-    student1.profileUrl =
-        "https://i.pinimg.com/originals/a7/65/45/a7654580f501e9501e329978bebd051b.jpg";
-
-    StudentDonationStatus student2 = StudentDonationStatus();
-    student2.name = "Su Nandar";
-    student2.grade = "3rd Grade";
-    student2.dateOfBirth = "3 June 2015";
-    student2.donationStatus = [month2, month3];
-    student2.profileUrl =
-        "https://i.pinimg.com/originals/a7/65/45/a7654580f501e9501e329978bebd051b.jpg";
-
-    List<StudentDonationStatus> studentList = [student1, student2];
-    return studentList;
-  }
-
   Widget _bottomNavigationBar(appTheme) {
-    bottomAppBarItem(itemIndex) {
+    bottomAppBarItem(itemIndex, title) {
       return SizedBox(
         width: 168,
         child: InkWell(
@@ -496,9 +441,13 @@ class _HomeState extends State<Home> {
                         context, itemIndex, _screenIndex, appTheme),
                   ),
                   Text(
-                    titles[itemIndex],
+                    title,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize:
+                          (EasyLocalization.of(context).locale.toString() ==
+                                  "my_MM")
+                              ? 8
+                              : 12,
                       color: bottomAppBarTextColor(
                           context, itemIndex, _screenIndex, appTheme),
                     ),
@@ -536,10 +485,10 @@ class _HomeState extends State<Home> {
           children: [
             // My Student Tab Icon.
 
-            Expanded(child: bottomAppBarItem(0)),
-            Expanded(child: bottomAppBarItem(1)),
-            Expanded(child: bottomAppBarItem(2)),
-            Expanded(child: bottomAppBarItem(3)),
+            Expanded(child: bottomAppBarItem(0, 'page_title_donation'.tr())),
+            Expanded(child: bottomAppBarItem(1, 'page_title_attendance'.tr())),
+            Expanded(child: bottomAppBarItem(2, 'page_title_students'.tr())),
+            Expanded(child: bottomAppBarItem(3, 'page_title_schools'.tr())),
 
             // All Students Tab Icon.
           ],

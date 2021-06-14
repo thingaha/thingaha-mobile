@@ -1,0 +1,25 @@
+{
+    "app_title": "Thingaha",
+    "page_title_donation": "Donation",
+    "page_title_attendance": "Attendance",
+    "page_title_students": "Students",
+    "page_title_schools": "Schools",
+    "page_title_account": "Account",
+
+    "age_sentence": "{} years old.",
+    "dob_sentence": "born {}",
+    "location_sentence": "from {}",
+
+    "table_title_month": "Month",
+    "table_title_amount": "MMK Amount",
+    "table_title_status": "Status",
+
+    "btn_label_editprofile": "Edit Profile",
+    
+    "list_title_aboutus": "About Us",
+    "list_title_language": "Language",
+    "list_title_changepassword": "Change Password",
+    "list_title_appearance": "Apperance",
+    "list_title_logout": "Log Out"
+
+}

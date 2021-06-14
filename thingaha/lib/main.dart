@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +11,18 @@ import 'package:thingaha/util/constants.dart';
 import 'package:thingaha/util/keys.dart';
 import 'package:thingaha/util/style_constants.dart';
 
-void main() => runApp(ProviderScope(child: MyApp()));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await EasyLocalization.ensureInitialized();
+  runApp(ProviderScope(
+      child: EasyLocalization(
+          supportedLocales: [Locale('en', 'US'), Locale('my', 'MM')],
+          path:
+              'assets/translations', // <-- change the path of the translation files
+          fallbackLocale: Locale('en', 'US'),
+          child: MyApp())));
+}
 
 class MyApp extends StatefulWidget {
   @override
@@ -23,13 +35,6 @@ class _MyAppState extends State<MyApp> {
     return Consumer(
       builder: (context, ref, child) {
         final theme = ref(appThemeProvider);
-        // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        //   statusBarBrightness: Brightness.dark,
-        //   systemNavigationBarColor: Colors.transparent,
-        //   statusBarColor: Colors.transparent,
-        //   statusBarIconBrightness: Brightness.dark,
-        //   systemNavigationBarIconBrightness: Brightness.dark,
-        // ));
 
         final WidgetsBinding binding =
             WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +46,9 @@ class _MyAppState extends State<MyApp> {
         }
 
         return MaterialApp(
+            localizationsDelegates: context.localizationDelegates,
+            supportedLocales: context.supportedLocales,
+            locale: EasyLocalization.of(context).locale,
             navigatorKey: navKey,
             title: APP_NAME,
             themeMode: theme,
@@ -65,21 +73,26 @@ class _MyAppState extends State<MyApp> {
               textTheme: TextTheme(
                 bodyText1: TextStyle(
                   color: Colors.black,
+                  fontFamilyFallback: ['Sanpya'],
                 ),
                 subtitle2: TextStyle(
                   color: Colors.black,
+                  fontFamilyFallback: ['Sanpya'],
                 ),
                 headline4: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w600,
+                  fontFamilyFallback: ['Sanpya'],
                 ),
                 headline5: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w600,
+                  fontFamilyFallback: ['Sanpya'],
                 ),
                 headline6: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w600,
+                  fontFamilyFallback: ['Sanpya'],
                 ),
               ),
               radioTheme: RadioThemeData(

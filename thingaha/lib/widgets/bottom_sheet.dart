@@ -1,4 +1,5 @@
 import 'package:circle_flags/circle_flags.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,60 +7,70 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:thingaha/main.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/screen/login.dart';
 import 'package:thingaha/util/keys.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 
-class ProfileAndSettings extends ConsumerWidget {
+class ProfileAndSettings extends StatefulWidget {
   @override
-  Widget build(BuildContext rootContext, ScopedReader watch) {
-    final appT = watch(appThemeProvider);
-    print("App Theme is $appT");
-    return WillPopScope(
-      onWillPop: () async {
-        SetStatusBarAndNavBarColor().mainUI(rootContext, appT);
-        return true;
-      },
-      child: Material(
-        color: modalSheetBackgroundColor(rootContext, appT),
-        child: Navigator(
-          onGenerateRoute: (_) => MaterialPageRoute(
-            builder: (context2) => Builder(
-              builder: (context) => Consumer(
-                builder: (context, ref, child) {
-                  final appTheme = ref(appThemeProvider);
-                  return Scaffold(
-                    backgroundColor:
-                        modalSheetBackgroundColor(context, appTheme),
-                    appBar: AppBar(
-                      backgroundColor: modalSheetAppBarColor(context, appTheme),
-                      title: Text(
-                        "Account",
-                        style: Theme.of(rootContext).textTheme.headline6,
-                      ),
-                      centerTitle: true,
-                      elevation: 0,
-                      automaticallyImplyLeading: false,
-                      actions: [
-                        TextButton(
-                            onPressed: () {
-                              SetStatusBarAndNavBarColor()
-                                  .mainUI(rootContext, appTheme);
-                              Navigator.of(rootContext).pop();
-                            },
-                            child: Text("Done")),
-                      ],
-                    ),
-                    body: accountChild(rootContext, context, appTheme),
-                  );
-                },
+  _ProfileAndSettingsState createState() => _ProfileAndSettingsState();
+}
+
+class _ProfileAndSettingsState extends State<ProfileAndSettings> {
+  @override
+  Widget build(BuildContext rootContext) {
+    return Consumer(
+      builder: (context, watch, child) {
+        final appT = watch(appThemeProvider);
+        return WillPopScope(
+          onWillPop: () async {
+            SetStatusBarAndNavBarColor().mainUI(rootContext, appT);
+            return true;
+          },
+          child: Material(
+            color: modalSheetBackgroundColor(rootContext, appT),
+            child: Navigator(
+              onGenerateRoute: (_) => MaterialPageRoute(
+                builder: (context2) => Builder(
+                  builder: (context) => Consumer(
+                    builder: (context, ref, child) {
+                      final appTheme = ref(appThemeProvider);
+                      return Scaffold(
+                        backgroundColor:
+                            modalSheetBackgroundColor(context, appTheme),
+                        appBar: AppBar(
+                          backgroundColor:
+                              modalSheetAppBarColor(context, appTheme),
+                          title: Text(
+                            "page_title_account".tr(),
+                            style: Theme.of(rootContext).textTheme.headline6,
+                          ),
+                          centerTitle: true,
+                          elevation: 0,
+                          automaticallyImplyLeading: false,
+                          actions: [
+                            TextButton(
+                                onPressed: () {
+                                  SetStatusBarAndNavBarColor()
+                                      .mainUI(rootContext, appTheme);
+                                  Navigator.of(rootContext).pop();
+                                },
+                                child: Text("Done")),
+                          ],
+                        ),
+                        body: accountChild(rootContext, context, appTheme),
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -83,7 +94,7 @@ class ProfileAndSettings extends ConsumerWidget {
   Widget profileCard(context, appTheme) {
     print("app theme after child is $appTheme");
     return Container(
-      height: 200,
+      height: 210,
       margin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0, top: 16.0),
       decoration: BoxDecoration(
         color: greyCardBackgroundColor(context, appTheme),
@@ -206,14 +217,25 @@ class ProfileAndSettings extends ConsumerWidget {
   }
 
   Widget settingsItem(rootContext, context, icon, title, appTheme, action) {
+    bool togg = EasyLocalization.of(context).locale.toString() == "my_MM";
     return ListTile(
       leading: Icon(icon, color: searchIconColor(context, appTheme)),
       onTap: () {
         switch (action) {
-          case StaticStrings.actionLogOut:
+          case StaticStrings.keyActionLanguage:
+            //languageChange.setLocale(Locale("my", "MM"));
+            var locale = EasyLocalization.of(context).locale;
+            print(locale);
+            if (locale.toString() == "my_MM")
+              EasyLocalization.of(context).setLocale(Locale("en", "US"));
+            else
+              EasyLocalization.of(context).setLocale(Locale("my", "MM"));
+
+            break;
+          case DisplayStrings.actionLogOut:
             logout(rootContext);
             break;
-          case StaticStrings.actionTheme:
+          case DisplayStrings.actionTheme:
             SetStatusBarAndNavBarColor().themeChooser(context, appTheme);
 
             Navigator.of(context).push(MaterialPageRoute(
@@ -230,10 +252,28 @@ class ProfileAndSettings extends ConsumerWidget {
             color: Theme.of(context).textTheme.subtitle2.color,
             fontWeight: FontWeight.w500),
       ),
-      trailing: Icon(
-        Icons.chevron_right_rounded,
-        color: searchIconColor(context, appTheme),
-      ),
+      trailing: (action == StaticStrings.keyActionLanguage)
+          ? Switch(
+              activeThumbImage: NetworkImage(
+                  "https://cdn.countryflags.com/thumbs/myanmar/flag-round-250.png"),
+              inactiveThumbImage: NetworkImage(
+                  "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/United-states_flag_icon_round.svg/512px-United-states_flag_icon_round.svg.png"),
+              activeColor: primaryColors(context, appTheme),
+              value: togg,
+              onChanged: (value) {
+                var locale = EasyLocalization.of(context).locale;
+                setState(() {
+                  if (locale.toString() == "my_MM")
+                    EasyLocalization.of(context).setLocale(Locale("en", "US"));
+                  else
+                    EasyLocalization.of(context).setLocale(Locale("my", "MM"));
+                });
+              },
+            )
+          : Icon(
+              Icons.chevron_right_rounded,
+              color: searchIconColor(context, appTheme),
+            ),
     );
   }
 
@@ -249,26 +289,46 @@ class ProfileAndSettings extends ConsumerWidget {
           Container(
             height: 6.0,
           ),
-          settingsItem(rootContext, context, Icons.info_outline_rounded,
-              "About Us", appTheme, StaticStrings.actionAboutUs),
+          settingsItem(
+              rootContext,
+              context,
+              Icons.info_outline_rounded,
+              "list_title_aboutus".tr(),
+              appTheme,
+              StaticStrings.keyActionAboutUs),
           Divider(
             color: dividerColor(context, appTheme),
             thickness: 1.0,
           ),
-          settingsItem(rootContext, context, Icons.translate_rounded,
-              "Language", appTheme, StaticStrings.actionLanguage),
+          settingsItem(
+              rootContext,
+              context,
+              Icons.translate_rounded,
+              "list_title_language".tr(),
+              appTheme,
+              StaticStrings.keyActionLanguage),
           Divider(
             color: dividerColor(context, appTheme),
             thickness: 1.0,
           ),
-          settingsItem(rootContext, context, Icons.vpn_key_rounded,
-              "Change Password", appTheme, StaticStrings.actionChangePassword),
+          settingsItem(
+              rootContext,
+              context,
+              Icons.vpn_key_rounded,
+              "list_title_changepassword".tr(),
+              appTheme,
+              StaticStrings.keyActionChangePassword),
           Divider(
             color: dividerColor(context, appTheme),
             thickness: 1.0,
           ),
-          settingsItem(rootContext, context, EvaIcons.moonOutline, "Apperance",
-              appTheme, StaticStrings.actionTheme),
+          settingsItem(
+              rootContext,
+              context,
+              EvaIcons.moonOutline,
+              "list_title_appearance".tr(),
+              appTheme,
+              StaticStrings.keyActionTheme),
           Container(
             height: 6.0,
           ),
@@ -285,7 +345,7 @@ class ProfileAndSettings extends ConsumerWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       child: settingsItem(rootContext, context, EvaIcons.logOutOutline,
-          "Log Out", appTheme, StaticStrings.actionLogOut),
+          "list_title_logout".tr(), appTheme, StaticStrings.keyActionLogOut),
     );
   }
 

@@ -141,3 +141,15 @@ class Address {
         "township": township,
       };
 }
+
+class StudentByYear {
+  final int id;
+  final int year;
+
+  StudentByYear({this.id, this.year});
+
+  @override
+  String toString() {
+    return '{$id, $year}';
+  }
+}
