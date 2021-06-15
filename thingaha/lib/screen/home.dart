@@ -2,22 +2,17 @@ import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:md2_tab_indicator/md2_tab_indicator.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:thingaha/screen/charts.dart';
 import 'package:thingaha/screen/schoolscreen.dart';
-import 'package:thingaha/util/logout.dart';
 import 'package:thingaha/widgets/appbar.dart';
 import 'package:thingaha/widgets/error.dart';
 import 'package:thingaha/widgets/loading.dart';
 import 'package:thingaha/widgets/slivertabs.dart';
 import 'package:thingaha/model/donatordonations.dart';
 import 'package:thingaha/model/providers.dart';
-import 'package:thingaha/model/student_donation_status.dart';
 import 'package:thingaha/screen/all_students.dart';
 import 'package:thingaha/screen/attendance_tab.dart';
-import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -210,22 +205,31 @@ class _HomeState extends State<Home> {
         .where(
             (data) => data.student.name == studentNameList[_currentPageIndex])
         .toList();
+
+    var reversedDontationForCurrentPage =
+        donationsForCurrentPage.reversed.toList();
+
+    print(donationsForCurrentPage[0].month.toString());
+    print(reversedDontationForCurrentPage[0].month.toString());
     DefaultTabController.of(context).addListener(() {
       setState(() {});
     });
     var birthday, age, addressDivision, photoURL;
     //print(donationsForCurrentPage[0].student.birthDate);
+    print(donationsForCurrentPage[0].student.birthDate);
     if (donationsForCurrentPage != null) {
       //print(donationsForCurrentPage[0].student.birthDate);
       if (donationsForCurrentPage[0].student.birthDate != null &&
           donationsForCurrentPage[0].student.birthDate != "") {
-        birthday = DateFormat.yMMMMd('en_US')
+        birthday = DateFormat.yMMMMd(
+                EasyLocalization.of(context).locale.toString())
             .format(
                 DateTime.parse(donationsForCurrentPage[0].student.birthDate))
             .toString();
-        age = calculateAge(
-                DateTime.parse(donationsForCurrentPage[0].student.birthDate))
-            .toString();
+        final formattedNum = new NumberFormat(
+            "##", EasyLocalization.of(context).locale.toString());
+        age = formattedNum.format(calculateAge(
+            DateTime.parse(donationsForCurrentPage[0].student.birthDate)));
       } else {
         birthday = "";
         age = "";
@@ -270,7 +274,14 @@ class _HomeState extends State<Home> {
                           child: Image.network(photoURL),
                         )
                       : Center(
-                          child: Text("Student Photo"),
+                          child: Text(
+                            "student_photo".tr(),
+                            style: TextStyle(
+                              color:
+                                  Theme.of(context).textTheme.subtitle2.color,
+                              fontFamilyFallback: ['Sanpya'],
+                            ),
+                          ),
                         ),
                 ),
                 Column(
@@ -278,7 +289,7 @@ class _HomeState extends State<Home> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      margin: EdgeInsets.only(top: 16.0, bottom: 16.0),
+                      margin: EdgeInsets.only(top: 16.0, bottom: 5.0),
                       child: Text(
                         donationsForCurrentPage[0].student.name,
                         style: TextStyle(
@@ -288,15 +299,32 @@ class _HomeState extends State<Home> {
                             fontSize: 18),
                       ),
                     ),
-                    Text((age == "") ? "" : "$age years old.\n(born $birthday)",
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                      child: Text(
+                          (age == "") ? "" : "age_sentence".tr(args: ['$age']),
+                          style: TextStyle(
+                              fontFamilyFallback: ['Sanpya'],
+                              color:
+                                  Theme.of(context).textTheme.subtitle2.color,
+                              fontSize: 16)),
+                    ),
+                    Text(
+                        (birthday == "")
+                            ? ""
+                            : "dob_sentence".tr(args: ['$birthday']),
                         style: TextStyle(
+                          fontFamilyFallback: ['Sanpya'],
                           color: Theme.of(context).textTheme.subtitle2.color,
                         )),
                     Container(
                       margin: EdgeInsets.only(top: 16.0),
                       child: Text(
-                          "from ${addressDivision.toString()[0].toUpperCase()}${addressDivision.toString().substring(1)}",
+                          "location_sentence".tr(args: [
+                            "division.${addressDivision.toString()}".tr()
+                          ]),
                           style: TextStyle(
+                            fontFamilyFallback: ['Sanpya'],
                             color: Theme.of(context).textTheme.subtitle2.color,
                           )),
                     ),
@@ -313,8 +341,8 @@ class _HomeState extends State<Home> {
                     horizontalInside: BorderSide(
                   color: borderColor(context, appTheme),
                 )),
-                children:
-                    List.generate(donationsForCurrentPage.length + 1, (index) {
+                children: List.generate(
+                    reversedDontationForCurrentPage.length + 1, (index) {
                   if (index == 0) {
                     return TableRow(
                         decoration: BoxDecoration(
@@ -330,9 +358,10 @@ class _HomeState extends State<Home> {
                             margin: EdgeInsets.only(
                                 bottom: 16.0, left: 32.0, top: 16.0),
                             child: Text(
-                              "Month",
+                              "table_title_month".tr(),
                               textAlign: TextAlign.left,
                               style: TextStyle(
+                                fontFamilyFallback: ['Sanpya'],
                                 color:
                                     Theme.of(context).textTheme.subtitle2.color,
                                 fontWeight: FontWeight.bold,
@@ -342,9 +371,10 @@ class _HomeState extends State<Home> {
                           Container(
                             margin: EdgeInsets.only(bottom: 16.0, top: 16.0),
                             child: Text(
-                              "MMK Amount",
+                              "table_title_amount".tr(),
                               textAlign: TextAlign.center,
                               style: TextStyle(
+                                fontFamilyFallback: ['Sanpya'],
                                 color:
                                     Theme.of(context).textTheme.subtitle2.color,
                                 fontWeight: FontWeight.bold,
@@ -355,9 +385,10 @@ class _HomeState extends State<Home> {
                             margin: EdgeInsets.only(
                                 bottom: 16.0, right: 32.0, top: 16.0),
                             child: Text(
-                              "Status",
+                              "table_title_status".tr(),
                               textAlign: TextAlign.right,
                               style: TextStyle(
+                                fontFamilyFallback: ['Sanpya'],
                                 color:
                                     Theme.of(context).textTheme.subtitle2.color,
                                 fontWeight: FontWeight.bold,
@@ -366,15 +397,47 @@ class _HomeState extends State<Home> {
                           ),
                         ]);
                   } else {
+                    const Map<String, int> monthsInYear = {
+                      "january": 1,
+                      "february": 2,
+                      "march": 3,
+                      "april": 4,
+                      "may": 5,
+                      "june": 6,
+                      "july": 7,
+                      "august": 8,
+                      "september": 9,
+                      "october": 10,
+                      "november": 11,
+                      "december": 12,
+                    };
+
+                    var month = reversedDontationForCurrentPage[index - 1]
+                        .month
+                        .toString();
+                    var monthNum = monthsInYear[month];
+
+                    var formattedMonth = DateFormat.LLLL(
+                            EasyLocalization.of(context).locale.toString())
+                        .format(DateTime(2021, monthNum, 1))
+                        .toString();
+
+                    // Format the Currency.
+                    final ccy = new NumberFormat("#,###.#",
+                        EasyLocalization.of(context).locale.toString());
+                    var formattedCurrency = ccy.format(
+                        reversedDontationForCurrentPage[index - 1].mmkAmount);
+
                     return TableRow(children: [
                       Container(
                         padding: EdgeInsets.only(
                             top: 12.0, left: 32.0, bottom: 12.0),
                         child: Text(
                           //This capitalizes the first letter.
-                          "${donationsForCurrentPage[index - 1].month.toString()[0].toUpperCase()}${donationsForCurrentPage[index - 1].month.toString().substring(1)}",
+                          "$formattedMonth",
                           textAlign: TextAlign.start,
                           style: TextStyle(
+                            fontFamilyFallback: ['Sanpya'],
                             color: Theme.of(context).textTheme.subtitle2.color,
                           ),
                         ),
@@ -389,11 +452,10 @@ class _HomeState extends State<Home> {
                       Container(
                         padding: EdgeInsets.only(top: 12.0),
                         child: Text(
-                          donationsForCurrentPage[index - 1]
-                              .mmkAmount
-                              .toString(),
+                          formattedCurrency.toString(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
+                            fontFamilyFallback: ['Sanpya'],
                             color: Theme.of(context).textTheme.subtitle2.color,
                           ),
                         ),
@@ -402,12 +464,17 @@ class _HomeState extends State<Home> {
                         padding: EdgeInsets.only(
                             top: 12.0, right: 32.0, bottom: 12.0),
                         child: Text(
-                          donationsForCurrentPage[index - 1].status,
+                          (reversedDontationForCurrentPage[index - 1].status ==
+                                  "pending")
+                              ? "status_pending".tr()
+                              : "status_paid".tr(),
                           textAlign: TextAlign.end,
                           style: TextStyle(
+                            fontFamilyFallback: ['Sanpya'],
                             color: moneyStatusColor(
                                 context,
-                                donationsForCurrentPage[index - 1].status,
+                                reversedDontationForCurrentPage[index - 1]
+                                    .status,
                                 appTheme),
                           ),
                         ),
@@ -443,11 +510,8 @@ class _HomeState extends State<Home> {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize:
-                          (EasyLocalization.of(context).locale.toString() ==
-                                  "my_MM")
-                              ? 8
-                              : 12,
+                      fontFamilyFallback: ['Sanpya'],
+                      fontSize: 12,
                       color: bottomAppBarTextColor(
                           context, itemIndex, _screenIndex, appTheme),
                     ),

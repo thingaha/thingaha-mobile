@@ -8,10 +8,10 @@
 
     "age_sentence": "{} years old.",
     "dob_sentence": "born {}",
-    "location_sentence": "from {}",
+    "location_sentence": "lives in {}",
 
     "table_title_month": "Month",
-    "table_title_amount": "MMK Amount",
+    "table_title_amount": "Amount (MMK)",
     "table_title_status": "Status",
 
     "btn_label_editprofile": "Edit Profile",
@@ -20,6 +20,41 @@
     "list_title_language": "Language",
     "list_title_changepassword": "Change Password",
     "list_title_appearance": "Apperance",
-    "list_title_logout": "Log Out"
+    "list_title_logout": "Log Out",
+    
+    "student_photo": "Student Photo",
+
+    "status_pending": "pending",
+    "staus_paid": "paid",
+
+    "division": {
+       "thaninthayi"  : "Thaninthayi",
+        "mon": "Mon",
+        "yangon": "Yangon",
+        "ayeyarwady": "Ayeyarwaddy",
+        "kayin": "Kayin",
+        "bago": "Bago",
+        "rakhine":"Rakhine",
+        "magwe":"Magwe",
+        "mandalay":"Mandalay",
+        "kayah":"Kayah",
+        "shan":"Shan",
+        "sagaing":"Sagaing",
+        "chin":"Chin",
+        "kachin": "Kachin"
+      },
+
+
+    "tab_title_year": "Year",
+    "tab_title_name": "Name",
+    "tab_title_grade": "Grade",
+
+    "theme":"THEME",
+    "jedi": "Jedi's Theme",
+    "sith": "Sith's Theme",
+    "system_theme": "System Theme"
+
+
+
 
 }

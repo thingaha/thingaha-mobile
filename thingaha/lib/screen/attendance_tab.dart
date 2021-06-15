@@ -1,18 +1,11 @@
 import 'dart:ui';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:loading_indicator/loading_indicator.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:thingaha/model/attendances.dart';
 import 'package:thingaha/model/providers.dart';
-import 'package:thingaha/model/student.dart' as st;
 import 'package:thingaha/util/style_constants.dart';
 import 'package:thingaha/widgets/appbar.dart';
-import 'package:thingaha/widgets/bottom_sheet.dart';
 import 'package:thingaha/widgets/error.dart';
 import 'package:thingaha/widgets/loading.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -74,6 +67,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 SliverStickyHeader(
                   overlapsContent: true,
                   header: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
                       decoration: BoxDecoration(
                           color: appBarColor(context, _isScrolled, appTheme),
                           boxShadow: [
@@ -87,7 +81,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         columns: [
                           DataColumn(
                             label: Text(
-                              'Year',
+                              'tab_title_year'.tr(),
                               style: TextStyle(
                                   fontStyle: FontStyle.italic,
                                   color: Theme.of(context)
@@ -98,7 +92,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           ),
                           DataColumn(
                             label: Text(
-                              'Name',
+                              'tab_title_name'.tr(),
                               style: TextStyle(
                                   fontStyle: FontStyle.italic,
                                   color: Theme.of(context)
@@ -109,7 +103,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           ),
                           DataColumn(
                             label: Text(
-                              'Grade',
+                              'tab_title_grade'.tr(),
                               style: TextStyle(
                                   fontStyle: FontStyle.italic,
                                   color: Theme.of(context)
@@ -132,7 +126,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                             ),
                             DataCell(
                               Text(
-                                "မောင်ချမ်းမြဆန်းလှ",
+                                "မောင်ချမ်းမြဆန်းလှ", // :P
                                 style: TextStyle(
                                     fontFamilyFallback: [
                                       'Sanpya',
@@ -172,75 +166,110 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                   errorMessage: err, log: stack),
                               data: (att) {
                                 var list = att.data.attendances.toList();
-                                return DataTable(
-                                  headingRowHeight: (index == 0) ? 56 : 0,
-                                  columns: (index == 0)
-                                      ? [
-                                          DataColumn(
-                                            label: Text(
-                                              'Year',
-                                              style: TextStyle(
-                                                  fontStyle: FontStyle.italic),
-                                            ),
-                                          ),
-                                          DataColumn(
-                                            label: Text(
-                                              'Name',
-                                              style: TextStyle(
-                                                  fontStyle: FontStyle.italic),
-                                            ),
-                                          ),
-                                          DataColumn(
-                                            label: Text(
-                                              'Grade',
-                                              style: TextStyle(
-                                                  fontStyle: FontStyle.italic),
-                                            ),
-                                          ),
-                                        ]
-                                      : [
-                                          DataColumn(label: Container()),
-                                          DataColumn(label: Container()),
-                                          DataColumn(label: Container()),
-                                        ],
-                                  rows: List.generate(
-                                      list.length,
-                                      (listIndex) => DataRow(
-                                            cells: [
-                                              DataCell(
-                                                Text(
-                                                    list[listIndex]
-                                                        .year
-                                                        .toString(),
-                                                    style: TextStyle(
-                                                        color: Theme.of(context)
-                                                            .textTheme
-                                                            .subtitle2
-                                                            .color)),
+                                return Container(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: DataTable(
+                                    headingRowHeight: (index == 0) ? 56 : 0,
+                                    columns: (index == 0)
+                                        ? [
+                                            DataColumn(
+                                              label: Text(
+                                                'tab_title_year'.tr(),
+                                                style: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    color: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2
+                                                        .color),
                                               ),
-                                              DataCell(
-                                                Text(
-                                                  list[listIndex].student.name,
-                                                  style: TextStyle(
-                                                      fontFamilyFallback: [
-                                                        'Sanpya',
-                                                      ],
-                                                      color: Theme.of(context)
-                                                          .textTheme
-                                                          .subtitle2
-                                                          .color),
+                                            ),
+                                            DataColumn(
+                                              label: Text(
+                                                'tab_title_name'.tr(),
+                                                style: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    color: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2
+                                                        .color),
+                                              ),
+                                            ),
+                                            DataColumn(
+                                              label: Text(
+                                                'tab_title_grade'.tr(),
+                                                style: TextStyle(
+                                                    fontStyle: FontStyle.italic,
+                                                    color: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2
+                                                        .color),
+                                              ),
+                                            ),
+                                          ]
+                                        : [
+                                            DataColumn(label: Container()),
+                                            DataColumn(label: Container()),
+                                            DataColumn(label: Container()),
+                                          ],
+                                    rows: List.generate(
+                                        list.length,
+                                        (listIndex) => DataRow(
+                                              cells: [
+                                                DataCell(
+                                                  Text(
+                                                      DateFormat.y(
+                                                              EasyLocalization.of(
+                                                                      context)
+                                                                  .locale
+                                                                  .toString())
+                                                          .format(DateTime(
+                                                              list[
+                                                                      listIndex]
+                                                                  .year,
+                                                              1,
+                                                              7))
+                                                          .toString(),
+                                                      style: TextStyle(
+                                                          fontFamilyFallback: [
+                                                            'Sanpya'
+                                                          ],
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .subtitle2
+                                                                  .color)),
                                                 ),
-                                              ),
-                                              DataCell(
-                                                Text(list[listIndex].grade,
+                                                DataCell(
+                                                  Text(
+                                                    list[listIndex]
+                                                        .student
+                                                        .name,
                                                     style: TextStyle(
+                                                        fontFamilyFallback: [
+                                                          'Sanpya',
+                                                        ],
                                                         color: Theme.of(context)
                                                             .textTheme
                                                             .subtitle2
-                                                            .color)),
-                                              ),
-                                            ],
-                                          )),
+                                                            .color),
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  Text(list[listIndex].grade,
+                                                      style: TextStyle(
+                                                          fontFamilyFallback: [
+                                                            'Sanpya'
+                                                          ],
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .subtitle2
+                                                                  .color)),
+                                                ),
+                                              ],
+                                            )),
+                                  ),
                                 );
                               });
                         },

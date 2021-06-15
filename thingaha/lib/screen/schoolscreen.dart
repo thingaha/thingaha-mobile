@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:loading_indicator/loading_indicator.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:thingaha/widgets/appbar.dart';
@@ -84,6 +81,7 @@ class _SchoolsScreenState extends State<SchoolsScreen> {
                               data: (data) {
                                 var schools = data.data.schools.toList();
                                 return Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: List.generate(
                                       schools.length,
                                       (index) => _schoolListItem(context,
@@ -123,8 +121,10 @@ class _SchoolsScreenState extends State<SchoolsScreen> {
           Expanded(
             child: Text(
               schoolTitle,
-              style:
-                  TextStyle(color: Theme.of(context).textTheme.subtitle2.color),
+              style: TextStyle(
+                color: Theme.of(context).textTheme.subtitle2.color,
+                fontFamilyFallback: ['Sanpya'],
+              ),
             ),
           ),
           Icon(

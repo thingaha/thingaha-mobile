@@ -23,25 +23,6 @@ class LoggedInState extends StateNotifier<bool> {
 
 // =================
 
-final languageProvider = StateNotifierProvider((ref) => AppLanguage(
-    locale: (ref.watch(fetchLocalefromLocalProvider).data == "my_MM")
-        ? Locale("my", "MM")
-        : Locale("en", "US")));
-
-class AppLanguage extends StateNotifier<Locale> {
-  final locale;
-  AppLanguage({this.locale}) : super(Locale('en', 'US'));
-
-  void setLocale(Locale lo) => state = lo;
-}
-
-final fetchLocalefromLocalProvider = FutureProvider<String>((ref) async {
-  SharedPreferences localStorage = await SharedPreferences.getInstance();
-
-  var locale = localStorage.getString(StaticStrings.keyLocale);
-  return locale;
-});
-
 // ==================
 
 final appThemeProvider = StateNotifierProvider((ref) => AppThemeState());

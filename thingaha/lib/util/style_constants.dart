@@ -160,7 +160,7 @@ Color moneyStatusColor(context, status, selectedAppTheme) {
                   MediaQuery.of(context).platformBrightness == Brightness.light)
           ? Colors.red
           : Colors.red.shade300
-      : Colors.green;
+      : primaryColors(context, selectedAppTheme);
 }
 
 Color modalSheetBackgroundColor(context, selectedAppTheme) {

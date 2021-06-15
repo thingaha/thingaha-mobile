@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:thingaha/main.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/screen/login.dart';
 import 'package:thingaha/util/keys.dart';
@@ -58,7 +57,13 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
                                       .mainUI(rootContext, appTheme);
                                   Navigator.of(rootContext).pop();
                                 },
-                                child: Text("Done")),
+                                child: Text(
+                                  "Done",
+                                  style: TextStyle(
+                                      fontFamilyFallback: ['Sanpya'],
+                                      color: primaryColors(context, appTheme),
+                                      fontWeight: FontWeight.w600),
+                                )),
                           ],
                         ),
                         body: accountChild(rootContext, context, appTheme),
@@ -231,6 +236,10 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
             else
               EasyLocalization.of(context).setLocale(Locale("my", "MM"));
 
+            Future.delayed(const Duration(milliseconds: 500), () {
+              SetStatusBarAndNavBarColor().accountScreen(context, appTheme);
+            });
+
             break;
           case DisplayStrings.actionLogOut:
             logout(rootContext);
@@ -248,7 +257,7 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
       title: Text(
         title,
         style: TextStyle(
-            fontSize: 15,
+            fontFamilyFallback: ['Sanpya'],
             color: Theme.of(context).textTheme.subtitle2.color,
             fontWeight: FontWeight.w500),
       ),
@@ -267,6 +276,9 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
                     EasyLocalization.of(context).setLocale(Locale("en", "US"));
                   else
                     EasyLocalization.of(context).setLocale(Locale("my", "MM"));
+                });
+                Future.delayed(const Duration(milliseconds: 500), () {
+                  SetStatusBarAndNavBarColor().accountScreen(context, appTheme);
                 });
               },
             )
@@ -378,7 +390,7 @@ class AppThemeSelector extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: themeChooserBG(context, appTheme),
         title: Text(
-          "Apperance",
+          "list_title_appearance".tr(),
           style: Theme.of(context).textTheme.headline6,
         ),
         centerTitle: true,
@@ -395,11 +407,18 @@ class AppThemeSelector extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () {
-                SetStatusBarAndNavBarColor().mainUI(context, appTheme);
-                Navigator.of(rootContext).pop();
-              },
-              child: Text("Done")),
+            onPressed: () {
+              SetStatusBarAndNavBarColor().mainUI(context, appTheme);
+              Navigator.of(rootContext).pop();
+            },
+            child: Text(
+              "Done",
+              style: TextStyle(
+                  fontFamilyFallback: ['Sanpya'],
+                  color: primaryColors(context, appTheme),
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
         ],
       ),
       body: Column(
@@ -407,8 +426,9 @@ class AppThemeSelector extends ConsumerWidget {
           Container(
             margin: EdgeInsets.only(left: 24.0, bottom: 5.0),
             alignment: Alignment.centerLeft,
-            child: Text("THEME",
+            child: Text("theme".tr(),
                 style: TextStyle(
+                    fontFamilyFallback: ['Sanpya'],
                     color: Theme.of(context).textTheme.headline6.color,
                     fontSize: 14.0,
                     fontWeight: FontWeight.bold)),
@@ -420,10 +440,10 @@ class AppThemeSelector extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   RadioListTile<ThemeMode>(
-                    title: Text("Jedi's",
-                        style: TextStyle(
-                            color:
-                                Theme.of(context).textTheme.subtitle2.color)),
+                    title: Text("jedi".tr(),
+                        style: TextStyle(fontFamilyFallback: [
+                          'Sanpya'
+                        ], color: Theme.of(context).textTheme.subtitle2.color)),
                     value: ThemeMode.light,
                     groupValue: appTheme,
                     dense: true,
@@ -436,10 +456,10 @@ class AppThemeSelector extends ConsumerWidget {
                     endIndent: 24.0,
                   ),
                   RadioListTile<ThemeMode>(
-                    title: Text("Sith's",
-                        style: TextStyle(
-                            color:
-                                Theme.of(context).textTheme.subtitle2.color)),
+                    title: Text("sith".tr(),
+                        style: TextStyle(fontFamilyFallback: [
+                          'Sanpya'
+                        ], color: Theme.of(context).textTheme.subtitle2.color)),
                     value: ThemeMode.dark,
                     groupValue: appTheme,
                     dense: true,
@@ -452,10 +472,10 @@ class AppThemeSelector extends ConsumerWidget {
                     endIndent: 24.0,
                   ),
                   RadioListTile<ThemeMode>(
-                    title: Text("System's",
-                        style: TextStyle(
-                            color:
-                                Theme.of(context).textTheme.subtitle2.color)),
+                    title: Text("system_theme".tr(),
+                        style: TextStyle(fontFamilyFallback: [
+                          'Sanpya'
+                        ], color: Theme.of(context).textTheme.subtitle2.color)),
                     value: ThemeMode.system,
                     groupValue: appTheme,
                     dense: true,
@@ -517,7 +537,7 @@ class ChangePassword extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: themeChooserBG(context, appTheme),
             title: Text(
-              "Change Password",
+              "list_title_changepassword".tr(),
               style: Theme.of(context).textTheme.headline6,
             ),
             centerTitle: true,
@@ -538,7 +558,13 @@ class ChangePassword extends StatelessWidget {
                     SetStatusBarAndNavBarColor().mainUI(context, appTheme);
                     Navigator.of(rootContext).pop();
                   },
-                  child: Text("Done")),
+                  child: Text(
+                    "Done",
+                    style: TextStyle(
+                        fontFamilyFallback: ['Sanpya'],
+                        color: primaryColors(context, appTheme),
+                        fontWeight: FontWeight.w600),
+                  )),
             ],
           ),
         ));

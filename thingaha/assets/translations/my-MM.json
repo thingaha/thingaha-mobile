@@ -7,8 +7,8 @@
     "page_title_account": "မိမိ၏အကောင့်",
 
     "age_sentence": "အသက် {} နှစ်",
-    "dob_sentence": "{} ခုနှစ်တွင် မွေးဖွားသည်",
-    "location_sentence": "from {}",
+    "dob_sentence": "{}\nတွင် မွေးဖွားသည်။",
+    "location_sentence": "{} တွင် နေထိုင်သည်။",
 
     "table_title_month": "လ",
     "table_title_amount": "အလှူငွေ (ကျပ်)",
@@ -20,5 +20,36 @@
     "list_title_language": "ဘာသာစကား",
     "list_title_changepassword": "ပက်စဝေါ့ ပြောင်းရန်",
     "list_title_appearance": "အသွင်အပြင်",
-    "list_title_logout": "ထွက်ရန်"
+    "list_title_logout": "ထွက်ရန်",
+
+    "student_photo": "ဓာတ်ပုံ",
+
+    "status_pending": "မပြီးသေး",
+    "staus_paid": "ပေးပြီး",
+
+    "division": {
+        "thaninthayi"  : "တနင်္သာရီတိုင်း",
+         "mon": "မွန်ပြည်နယ်",
+         "yangon": "ရန်ကုန်တိုင်း",
+         "ayeyarwady": "ဧရာဝတီတိုင်း",
+         "kayin": "ကရင်ပြည်နယ်",
+         "bago": "ပဲခူးတိုင်း",
+         "rakhine":"ရခိုင်ပြည်နယ်",
+         "magwe":"မကွေးတိုင်း",
+         "mandalay":"မန္တလေးတိုင်း",
+         "kayah":"ကယားပြည်နယ်",
+         "shan":"ရှမ်းပြည်နယ်",
+         "sagaing":"စစ်ကိုင်းတိုင်း",
+         "chin":"ချင်းပြည်နယ်",
+         "kachin": "ကချင်ပြည်နယ်"
+       },
+
+    "tab_title_year": "ခုနှစ်",
+    "tab_title_name": "အမည်",
+    "tab_title_grade": "အတန်း",
+
+    "theme":"အရောင်",
+    "jedi": "အဖြူရောင်",
+    "sith": "အနက်ရောင်",
+    "system_theme": "ဖုန်း၏ စနစ်ပုံစံ အရောင်"
 }

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/model/providers.dart';
@@ -31,7 +30,6 @@ class _SplashState extends State<Splash> {
     return Consumer(
       builder: (context, ref, child) {
         final isLoggedIn = ref(isLoggedInProvider.notifier);
-        final appTheme = ref(appThemeFromLocalProvider);
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
           // executes after build
@@ -53,9 +51,6 @@ class _SplashState extends State<Splash> {
 
   checkAuth(isLoggedIn) async {
     SharedPreferences localStorage = await SharedPreferences.getInstance();
-    if (localStorage.getString(StaticStrings.keyLocale) == null) {
-      localStorage.setString(StaticStrings.keyLocale, "en_US");
-    }
 
     var accessToken = localStorage.getString(StaticStrings.keyAccessToken);
 

@@ -1,13 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:loading_indicator/loading_indicator.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/style_constants.dart';
 import 'package:thingaha/widgets/appbar.dart';
-import 'package:thingaha/widgets/bottom_sheet.dart';
 import 'package:thingaha/widgets/error.dart';
 import 'package:thingaha/widgets/loading.dart';
 
@@ -78,7 +74,7 @@ class _AllStudentsState extends State<AllStudents> {
                                 errorMessage: err, log: stack),
                             data: (att) {
                               var list = att.data.students.toList();
-                              print("List is ${list.length} long");
+                              //print("List is ${list.length} long");
                               return GridView.count(
                                 childAspectRatio:
                                     (250 / 350), // (Width / Height)
@@ -132,7 +128,18 @@ class _AllStudentsState extends State<AllStudents> {
                                                       )
                                                     : Center(
                                                         child: Text(
-                                                            "Student Photo"),
+                                                          "student_photo".tr(),
+                                                          style: TextStyle(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .textTheme
+                                                                .subtitle2
+                                                                .color,
+                                                            fontFamilyFallback: [
+                                                              'Sanpya'
+                                                            ],
+                                                          ),
+                                                        ),
                                                       ),
                                               ),
                                               Text(

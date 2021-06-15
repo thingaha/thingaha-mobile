@@ -105,29 +105,28 @@ class SchoolsLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 36,
-              height: 36,
-              child: LoadingIndicator(
-                indicatorType: Indicator.ballSpinFadeLoader,
-                color: kPrimaryColor,
-              ),
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 36,
+            height: 36,
+            child: LoadingIndicator(
+              indicatorType: Indicator.ballSpinFadeLoader,
+              color: kPrimaryColor,
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 16.0),
-              child: Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.subtitle2,
-              ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 16.0),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.subtitle2,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -28,7 +28,9 @@ class ErrorMessageWidget extends StatelessWidget {
           style: Theme.of(context).textTheme.subtitle2,
         ),
         ElevatedButton.icon(
-          onPressed: logout(),
+          onPressed: () {
+            logout();
+          },
           label: Text("Logout"),
           icon: Icon(Icons.login_rounded),
         ),

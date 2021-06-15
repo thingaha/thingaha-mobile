@@ -109,21 +109,26 @@ class _MyAppState extends State<MyApp> {
                 textTheme: TextTheme(
                   bodyText1: TextStyle(
                     color: Colors.white,
+                    fontFamilyFallback: ['Sanpya'],
                   ),
                   subtitle2: TextStyle(
                     color: Colors.white,
+                    fontFamilyFallback: ['Sanpya'],
                   ),
                   headline4: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
+                    fontFamilyFallback: ['Sanpya'],
                   ),
                   headline5: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
+                    fontFamilyFallback: ['Sanpya'],
                   ),
                   headline6: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
+                    fontFamilyFallback: ['Sanpya'],
                   ),
                 ),
                 iconTheme: IconThemeData(
