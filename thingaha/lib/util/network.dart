@@ -20,6 +20,16 @@ class Network {
         body: jsonEncode(data), headers: _setHeaders());
   }
 
+  putData(data, apiUrl) async {
+    var fullUrl = _url + apiUrl;
+    print(fullUrl);
+
+    await _getToken();
+    print(token);
+    return await http.put(Uri.parse(fullUrl),
+        body: jsonEncode(data), headers: _setHeaders());
+  }
+
   getData(apiUrl) async {
     var fullUrl = _url + apiUrl;
     await _getToken();

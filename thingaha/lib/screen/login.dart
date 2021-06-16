@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/model/providers.dart';
@@ -33,48 +36,129 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: Consumer(builder: (context, ref, child) {
-        final appTheme = ref(appThemeProvider);
-        return GestureDetector(
-            onTap: () {
-              FocusScopeNode currentFocus = FocusScope.of(context);
+    ValueNotifier<bool> isDialOpen = ValueNotifier(false);
 
-              if (!currentFocus.hasPrimaryFocus) {
-                currentFocus.unfocus();
-              }
-            },
-            child: SingleChildScrollView(
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height,
-                padding: EdgeInsets.only(
-                    top: 20.0, bottom: 10.0, left: 20.0, right: 20.0),
-                color: cardBackgroundColor(context, appTheme),
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.only(bottom: 64.0, top: 150.0),
-                      child: Image.asset(
-                        logoImage(context, appTheme),
+    return WillPopScope(
+      onWillPop: () async {
+        if (isDialOpen.value) {
+          isDialOpen.value = false;
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(),
+        body: Consumer(builder: (context, ref, child) {
+          final appTheme = ref(appThemeProvider);
+          return GestureDetector(
+              onTap: () {
+                FocusScopeNode currentFocus = FocusScope.of(context);
+
+                if (!currentFocus.hasPrimaryFocus) {
+                  currentFocus.unfocus();
+                }
+              },
+              child: SingleChildScrollView(
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  padding: EdgeInsets.only(
+                      top: 20.0, bottom: 10.0, left: 20.0, right: 20.0),
+                  color: cardBackgroundColor(context, appTheme),
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(bottom: 64.0, top: 150.0),
+                        child: Image.asset(
+                          logoImage(context, appTheme),
+                        ),
                       ),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 32.0),
-                        child: _buildLoginFields(appTheme))
-                  ],
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 32.0),
+                          child: _buildLoginFields(appTheme))
+                    ],
+                  ),
                 ),
-              ),
-            ));
-      }),
+              ));
+        }),
+        floatingActionButton: buildSpeedDial(),
+      ),
+    );
+  }
+
+  SpeedDial buildSpeedDial() {
+    return SpeedDial(
+      /// both default to 16
+      marginEnd: 18,
+      marginBottom: 20,
+
+      // animatedIcon: AnimatedIcons.menu_close,
+      // animatedIconTheme: IconThemeData(size: 22.0),
+      /// This is ignored if animatedIcon is non null
+      icon: Icons.settings_rounded,
+      activeIcon: Icons.close,
+      // iconTheme: IconThemeData(color: Colors.grey[50], size: 30),
+
+      /// The label of the main button.
+      // label: Text("Open Speed Dial"),
+      /// The active label of the main button, Defaults to label if not specified.
+      // activeLabel: Text("Close Speed Dial"),
+      /// Transition Builder between label and activeLabel, defaults to FadeTransition.
+      // labelTransitionBuilder: (widget, animation) => ScaleTransition(scale: animation,child: widget),
+      /// The below button size defaults to 56 itself, its the FAB size + It also affects relative padding and other elements
+      buttonSize: 56.0,
+      visible: true,
+
+      /// If true user is forced to close dial manually
+      /// by tapping main button and overlay is not rendered.
+      closeManually: false,
+      curve: Curves.bounceIn,
+      overlayColor: Colors.black,
+      overlayOpacity: 0.5,
+      onOpen: () => print('OPENING DIAL'),
+      onClose: () => print('DIAL CLOSED'),
+      tooltip: 'Speed Dial',
+      heroTag: 'speed-dial-hero-tag',
+      backgroundColor: lighterDarkColor,
+      foregroundColor: Colors.white,
+      elevation: 8.0,
+      shape: CircleBorder(),
+
+      // orientation: SpeedDialOrientation.Up,
+      // childMarginBottom: 2,
+      // childMarginTop: 2,
+      children: [
+        SpeedDialChild(
+          child: Icon(Icons.translate),
+          backgroundColor: Colors.grey[200],
+          label: 'change_language'.tr(),
+          labelStyle: TextStyle(fontSize: 12.0),
+          onTap: () {
+            if (EasyLocalization.of(context).locale.toString() == "my_MM")
+              EasyLocalization.of(context).setLocale(Locale("en", "US"));
+            else
+              EasyLocalization.of(context).setLocale(Locale("my", "MM"));
+          },
+          onLongPress: () => print('FIRST CHILD LONG PRESS'),
+        ),
+        SpeedDialChild(
+          child: Icon(EvaIcons.moonOutline),
+          backgroundColor: Colors.grey[200],
+          label: 'change_theme'.tr(),
+          labelStyle: TextStyle(fontSize: 12.0),
+          onTap: () {},
+          onLongPress: () => print('SECOND CHILD LONG PRESS'),
+        ),
+      ],
     );
   }
 
   Widget _buildLoginFields(appTheme) {
-    final emailTextField = _buildTextField(txt_email, false, appTheme);
+    final emailTextField =
+        _buildTextField("txtfield_lbl_email".tr(), false, appTheme);
 
-    final passwordTextField = _buildTextField(txt_password, true, appTheme);
+    final passwordTextField =
+        _buildTextField("txtfield_lbl_pwd".tr(), true, appTheme);
 
     final loginButton = SizedBox(
       width: MediaQuery.of(context).size.width,
@@ -89,7 +173,8 @@ class _LoginState extends State<Login> {
         style: ButtonStyle(
           padding: MaterialStateProperty.all(
               EdgeInsets.only(top: 15.0, bottom: 15.0)),
-          backgroundColor: MaterialStateProperty.all(kPrimaryColor),
+          backgroundColor:
+              MaterialStateProperty.all(primaryColors(context, appTheme)),
           shape: MaterialStateProperty.all(
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
           ),
@@ -104,10 +189,12 @@ class _LoginState extends State<Login> {
                 ),
               )
             : Text(
-                txt_login,
+                "btn_lbl_login".tr(),
                 textAlign: TextAlign.center,
-                style:
-                    TextStyle().copyWith(color: Colors.white, fontSize: 16.0),
+                style: TextStyle().copyWith(
+                    fontFamilyFallback: ['Sanpya'],
+                    color: buttonTextColor(context, appTheme),
+                    fontSize: 16.0),
               ),
       ),
     );
@@ -230,6 +317,7 @@ class _LoginState extends State<Login> {
 
     // This means that there's nothing wrong and the server responds success.
     var accessToken = body['data']['access_token'];
+    print(accessToken);
     var userID = body['data']['user']['id'];
     if (accessToken != null) {
       // This saves the access token in device's local storage

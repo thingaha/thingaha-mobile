@@ -13,12 +13,10 @@
     "table_title_month": "လ",
     "table_title_amount": "အလှူငွေ (ကျပ်)",
     "table_title_status": "ပြီး/မပြီး",
-
-    "btn_label_editprofile": "အချက်အလက်များ ပြုပြင်ရန်",
     
     "list_title_aboutus": "ကျွန်ုပ်တို့ အကြောင်း",
     "list_title_language": "ဘာသာစကား",
-    "list_title_changepassword": "ပက်စဝေါ့ ပြောင်းရန်",
+    "list_title_changepassword": "လျှို့ဝှက်ကုဒ် ပြောင်းရန်",
     "list_title_appearance": "အသွင်အပြင်",
     "list_title_logout": "ထွက်ရန်",
 
@@ -51,5 +49,20 @@
     "theme":"အရောင်",
     "jedi": "အဖြူရောင်",
     "sith": "အနက်ရောင်",
-    "system_theme": "ဖုန်း၏ စနစ်ပုံစံ အရောင်"
+    "system_theme": "ဖုန်း၏ စနစ်ပုံစံ အရောင်",
+
+    "btn_lbl_editprofile": "အချက်အလက် ပြင်ရန်",
+    "btn_lbl_login": "ဝင်မယ်",
+
+    "txtfield_lbl_email": "အီးမေးလ်",
+    "txtfield_lbl_pwd": "လျှို့ဝှက်ကုဒ်",
+    "txtfield_lbl_oldpwd": "လျှို့ဝှက်ကုဒ် အဟောင်း",
+    "txtfield_lbl_newpwd": "လျှို့ဝှက်ကုဒ် အသစ်",
+    "txtfield_lbl_confirmpwd": "အပေါ်က ကုဒ်အသစ်ကို ပြန်ထည့်ပါ",
+    "btn_save": "ပြောင်းမယ်",
+
+    "succ_pwd_change": "လျှို့ဝှက်ကုဒ် ပြောင်းမှု အောင်မြင်ပါတယ်",
+
+    "change_language": "Change Language",
+    "change_theme" :"အရောင် ပြောင်းမယ်"
 }

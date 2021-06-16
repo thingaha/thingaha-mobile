@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:circle_flags/circle_flags.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
@@ -9,9 +12,12 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/screen/login.dart';
+import 'package:thingaha/util/api_strings.dart';
 import 'package:thingaha/util/keys.dart';
+import 'package:thingaha/util/network.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
+import 'package:thingaha/widgets/textfield.dart';
 
 class ProfileAndSettings extends StatefulWidget {
   @override
@@ -66,7 +72,9 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
                                 )),
                           ],
                         ),
-                        body: accountChild(rootContext, context, appTheme),
+                        body: SingleChildScrollView(
+                            child:
+                                accountChild(rootContext, context, appTheme)),
                       );
                     },
                   ),
@@ -82,6 +90,7 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
   Widget accountChild(rootContext, context, appTheme) {
     return Container(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           // Profile Card
           profileCard(context, appTheme),
@@ -97,7 +106,7 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
   }
 
   Widget profileCard(context, appTheme) {
-    print("app theme after child is $appTheme");
+    //print("app theme after child is $appTheme");
     return Container(
       height: 210,
       margin: EdgeInsets.only(left: 16.0, right: 16.0, bottom: 16.0, top: 16.0),
@@ -133,86 +142,85 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
                 return Container(
                   padding: EdgeInsets.only(
                       right: 16.0, left: 16.0, top: 16.0, bottom: 16.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CircleFlag(
-                                  (country != "") ? country : "united_nations",
-                                  size: 48),
-
-                              // Name & NickName
-                              Container(
-                                margin: EdgeInsets.only(top: 16.0),
-                                child: Text(
-                                  (name != null) ? "$name\n($username)" : "",
+                  child: Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CircleFlag(
+                                (country != "") ? country : "united_nations",
+                                size: 48),
+                            ElevatedButton.icon(
+                                style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      primaryColors(context, appTheme)),
+                                  shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0)),
+                                  ),
+                                ),
+                                onPressed: () {},
+                                icon: Icon(
+                                  Icons.edit_rounded,
+                                  size: 22,
+                                  color: buttonTextColor(context, appTheme),
+                                ),
+                                label: Text(
+                                  "btn_lbl_editprofile".tr(),
                                   style: TextStyle(
-                                    fontSize: Theme.of(context)
-                                        .textTheme
-                                        .subtitle2
-                                        .fontSize,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .subtitle2
-                                        .color,
                                     fontFamilyFallback: [
                                       'Sanpya',
                                     ],
+                                    fontWeight: FontWeight.bold,
+                                    color: buttonTextColor(context, appTheme),
                                   ),
-                                ),
-                              ),
+                                )),
+                          ],
+                        ),
 
-                              // Address
-                              Container(
-                                margin: EdgeInsets.only(top: 8.0),
-                                child: Text(
-                                  (address != null) ? "$address" : "",
-                                  style: TextStyle(
-                                    fontSize: Theme.of(context)
-                                        .textTheme
-                                        .subtitle2
-                                        .fontSize,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .subtitle2
-                                        .color,
-                                    fontFamilyFallback: [
-                                      'Sanpya',
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+                        // Name & NickName
+                        Container(
+                          margin: EdgeInsets.only(top: 16.0),
+                          child: Text(
+                            (name != null) ? "$name\n($username)" : "",
+                            style: TextStyle(
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  .fontSize,
+                              fontWeight: FontWeight.w600,
+                              color:
+                                  Theme.of(context).textTheme.subtitle2.color,
+                              fontFamilyFallback: [
+                                'Sanpya',
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      ElevatedButton.icon(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                primaryColors(context, appTheme)),
-                            shape: MaterialStateProperty.all(
-                              RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0)),
-                            ),
-                          ),
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.edit_rounded,
-                            size: 22,
-                            color: buttonTextColor(context, appTheme),
-                          ),
-                          label: Text(
-                            "Edit Profile",
+
+                        // Address
+                        Container(
+                          margin: EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            (address != null) ? "$address" : "",
                             style: TextStyle(
-                              color: buttonTextColor(context, appTheme),
+                              fontSize: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  .fontSize,
+                              color:
+                                  Theme.of(context).textTheme.subtitle2.color,
+                              fontFamilyFallback: [
+                                'Sanpya',
+                              ],
                             ),
-                          )),
-                    ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               });
@@ -241,15 +249,22 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
             });
 
             break;
-          case DisplayStrings.actionLogOut:
+          case StaticStrings.keyActionLogOut:
             logout(rootContext);
             break;
-          case DisplayStrings.actionTheme:
+          case StaticStrings.keyActionTheme:
             SetStatusBarAndNavBarColor().themeChooser(context, appTheme);
 
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) =>
                     AppThemeSelector(rootContext: rootContext)));
+            break;
+          case StaticStrings.keyActionChangePassword:
+            SetStatusBarAndNavBarColor().themeChooser(context, appTheme);
+
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) =>
+                    ChangePassword(rootContext: rootContext)));
             break;
           default:
         }
@@ -297,6 +312,7 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             height: 6.0,
@@ -521,54 +537,225 @@ class AppThemeSelector extends ConsumerWidget {
   }
 }
 
-class ChangePassword extends StatelessWidget {
+class ChangePassword extends StatefulWidget {
   final BuildContext rootContext;
 
   ChangePassword({Key key, this.rootContext}) : super(key: key);
+
+  @override
+  _ChangePasswordState createState() => _ChangePasswordState();
+}
+
+class _ChangePasswordState extends State<ChangePassword> {
+  bool _isLoading = false;
+
+  final oldPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmNewPasswordController = TextEditingController();
+  @override
+  void dispose() {
+    oldPasswordController.dispose();
+    newPasswordController.dispose();
+    confirmNewPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
         final appTheme = ref(appThemeProvider);
+        final WidgetsBinding binding =
+            WidgetsFlutterBinding.ensureInitialized();
+        if (Platform.isAndroid) {
+          //Android has a bug that the system auto re-color the nav bar.
+          // see https://github.com/flutter/flutter/issues/40590
+          binding.renderView.automaticSystemUiAdjustment = false;
+        }
         return Material(
-            child: Scaffold(
-          backgroundColor: themeChooserBG(context, appTheme),
-          appBar: AppBar(
-            backgroundColor: themeChooserBG(context, appTheme),
-            title: Text(
-              "list_title_changepassword".tr(),
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            centerTitle: true,
-            elevation: 0,
-            leading: IconButton(
-              icon: Icon(
-                Icons.chevron_left_rounded,
-                color: searchIconColor(context, appTheme),
-              ),
-              onPressed: () {
-                SetStatusBarAndNavBarColor().accountScreen(context, appTheme);
-                Navigator.of(context).pop();
-              },
-            ),
-            actions: [
-              TextButton(
+            child: Container(
+          child: Scaffold(
+              backgroundColor: themeChooserBG(context, appTheme),
+              appBar: AppBar(
+                backgroundColor: themeChooserBG(context, appTheme),
+                title: Text(
+                  "list_title_changepassword".tr(),
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                centerTitle: true,
+                elevation: 0,
+                leading: IconButton(
+                  icon: Icon(
+                    Icons.chevron_left_rounded,
+                    color: searchIconColor(context, appTheme),
+                  ),
                   onPressed: () {
-                    SetStatusBarAndNavBarColor().mainUI(context, appTheme);
-                    Navigator.of(rootContext).pop();
+                    SetStatusBarAndNavBarColor()
+                        .accountScreen(context, appTheme);
+                    Navigator.of(context).pop();
                   },
-                  child: Text(
-                    "Done",
-                    style: TextStyle(
-                        fontFamilyFallback: ['Sanpya'],
-                        color: primaryColors(context, appTheme),
-                        fontWeight: FontWeight.w600),
-                  )),
-            ],
-          ),
+                ),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        SetStatusBarAndNavBarColor().mainUI(context, appTheme);
+                        Navigator.of(widget.rootContext).pop();
+                      },
+                      child: Text(
+                        "Done",
+                        style: TextStyle(
+                            fontFamilyFallback: ['Sanpya'],
+                            color: primaryColors(context, appTheme),
+                            fontWeight: FontWeight.w600),
+                      )),
+                ],
+              ),
+              body: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.all(32.0),
+                      child: ThingahaTextField(
+                        isPassword: true,
+                        label: "txtfield_lbl_oldpwd".tr(),
+                        controller: oldPasswordController,
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(
+                          left: 32.0, right: 32.0, bottom: 8.0, top: 16.0),
+                      child: ThingahaTextField(
+                        isPassword: true,
+                        label: "txtfield_lbl_newpwd".tr(),
+                        controller: newPasswordController,
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(
+                          left: 32.0, right: 32.0, bottom: 32.0, top: 8.0),
+                      child: ThingahaTextField(
+                        isPassword: true,
+                        label: "txtfield_lbl_confirmpwd".tr(),
+                        controller: confirmNewPasswordController,
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.all(32.0),
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          padding: MaterialStateProperty.all(
+                              EdgeInsets.only(top: 15.0, bottom: 15.0)),
+                          backgroundColor: MaterialStateProperty.all(
+                              primaryColors(context, appTheme)),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0)),
+                          ),
+                        ),
+                        onPressed: () {
+                          updatePassword(
+                              context,
+                              widget.rootContext,
+                              appTheme,
+                              oldPasswordController.text,
+                              newPasswordController.text,
+                              confirmNewPasswordController.text);
+                        },
+                        child: (_isLoading)
+                            ? SizedBox(
+                                width: 32,
+                                height: 32,
+                                child: LoadingIndicator(
+                                  indicatorType: Indicator.ballClipRotatePulse,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                "btn_save".tr(),
+                                textAlign: TextAlign.center,
+                                style: TextStyle().copyWith(
+                                    fontFamilyFallback: ['Sanpya'],
+                                    color: buttonTextColor(context, appTheme),
+                                    fontSize: 16.0),
+                              ),
+                      ),
+                    )
+                  ],
+                ),
+              )),
         ));
       },
     );
+  }
+
+  showErrorDialog(context, title, message) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  updatePassword(
+      context, rootContext, appTheme, oldPwd, newPwd, confirmPwd) async {
+    setState(() {
+      _isLoading = true;
+    });
+    FocusScopeNode currentFocus = FocusScope.of(context);
+
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+    var data = {
+      "current_password": oldPwd,
+      "new_password": newPwd,
+      "new_confirm_password": confirmPwd
+    };
+
+    var updatePasswordResponse =
+        await Network().putData(data, APIs.updatePassword);
+    print(updatePasswordResponse.body);
+    var body = json.decode(updatePasswordResponse.body);
+    if (body['errors'] != null) {
+      showErrorDialog(rootContext, body['errors'][0]['reason'],
+          body['errors'][0]['description']);
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    if (body['status'] == true) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("succ_pwd_change".tr()),
+      ));
+
+      setState(() {
+        _isLoading = false;
+      });
+      SetStatusBarAndNavBarColor().accountScreen(context, appTheme);
+      Navigator.of(context).pop();
+    }
   }
 }

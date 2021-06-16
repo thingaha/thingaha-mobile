@@ -1,21 +1,24 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 
-class ThingahsTextField extends StatelessWidget {
+class ThingahaTextField extends StatelessWidget {
   final String label;
   final bool isPassword;
   final TextEditingController controller;
 
-  ThingahsTextField({Key key, this.label, this.isPassword, this.controller})
+  ThingahaTextField({Key key, this.label, this.isPassword, this.controller})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, child) {
       final appTheme = ref(appThemeProvider);
+
       return TextFormField(
         validator: (value) {
           if (value.isEmpty) {

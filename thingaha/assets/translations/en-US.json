@@ -13,8 +13,6 @@
     "table_title_month": "Month",
     "table_title_amount": "Amount (MMK)",
     "table_title_status": "Status",
-
-    "btn_label_editprofile": "Edit Profile",
     
     "list_title_aboutus": "About Us",
     "list_title_language": "Language",
@@ -44,7 +42,6 @@
         "kachin": "Kachin"
       },
 
-
     "tab_title_year": "Year",
     "tab_title_name": "Name",
     "tab_title_grade": "Grade",
@@ -52,9 +49,22 @@
     "theme":"THEME",
     "jedi": "Jedi's Theme",
     "sith": "Sith's Theme",
-    "system_theme": "System Theme"
+    "system_theme": "System Theme",
 
+    "btn_lbl_editprofile": "Edit Profile",
+    "btn_lbl_login": "Login",
 
+    "txtfield_lbl_email": "Email",
+    "txtfield_lbl_pwd": "Password",
+    "txtfield_lbl_oldpwd": "Old Password",
+    "txtfield_lbl_newpwd": "New Password",
+    "txtfield_lbl_confirmpwd": "Confirm New Password",
+    "btn_save": "Save",
+
+    "succ_pwd_change": "Password changed successfully",
+
+    "change_language": "ဘာသာစကား ပြောင်းမယ်",
+    "change_theme" :"Change Theme"
 
 
 }

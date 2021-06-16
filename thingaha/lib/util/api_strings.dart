@@ -26,4 +26,7 @@ class APIs {
   static var getStudentsByPage = 'students?page=';
   static var getAllSchools = 'schools';
   static var getSchoolsByPage = 'schools?page=';
+
+  // PUT
+  static var updatePassword = "users/password";
 }
