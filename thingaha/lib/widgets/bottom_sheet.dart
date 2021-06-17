@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:circle_flags/circle_flags.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:flag/flag.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/model/providers.dart';
 import 'package:thingaha/screen/login.dart';
+import 'package:thingaha/util/actions.dart';
 import 'package:thingaha/util/api_strings.dart';
 import 'package:thingaha/util/keys.dart';
 import 'package:thingaha/util/network.dart';
@@ -230,7 +232,8 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
   }
 
   Widget settingsItem(rootContext, context, icon, title, appTheme, action) {
-    bool togg = EasyLocalization.of(context).locale.toString() == "my_MM";
+    //bool togg = EasyLocalization.of(context).locale.toString() == "my_MM";
+    String countryCode = EasyLocalization.of(context).locale.countryCode;
     return ListTile(
       leading: Icon(icon, color: searchIconColor(context, appTheme)),
       onTap: () {
@@ -250,7 +253,7 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
 
             break;
           case StaticStrings.keyActionLogOut:
-            logout(rootContext);
+            logout(context, rootContext, appTheme, navKey);
             break;
           case StaticStrings.keyActionTheme:
             SetStatusBarAndNavBarColor().themeChooser(context, appTheme);
@@ -277,25 +280,21 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
             fontWeight: FontWeight.w500),
       ),
       trailing: (action == StaticStrings.keyActionLanguage)
-          ? Switch(
-              activeThumbImage: NetworkImage(
-                  "https://cdn.countryflags.com/thumbs/myanmar/flag-round-250.png"),
-              inactiveThumbImage: NetworkImage(
-                  "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/United-states_flag_icon_round.svg/512px-United-states_flag_icon_round.svg.png"),
-              activeColor: primaryColors(context, appTheme),
-              value: togg,
-              onChanged: (value) {
-                var locale = EasyLocalization.of(context).locale;
-                setState(() {
-                  if (locale.toString() == "my_MM")
-                    EasyLocalization.of(context).setLocale(Locale("en", "US"));
-                  else
-                    EasyLocalization.of(context).setLocale(Locale("my", "MM"));
-                });
-                Future.delayed(const Duration(milliseconds: 500), () {
-                  SetStatusBarAndNavBarColor().accountScreen(context, appTheme);
-                });
-              },
+          ? Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(3),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey[300],
+                      offset: Offset(0.25, 1),
+                    )
+                  ]),
+              width: 25,
+              height: 16,
+              clipBehavior: Clip.hardEdge,
+              child: Flag(
+                countryCode,
+              ),
             )
           : Icon(
               Icons.chevron_right_rounded,
@@ -376,18 +375,6 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
           "list_title_logout".tr(), appTheme, StaticStrings.keyActionLogOut),
     );
   }
-
-  logout(rootcontext) async {
-    // print("This works");
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
-    localStorage.setString(StaticStrings.keyAccessToken, "");
-    localStorage.setBool(StaticStrings.keyLogInStatus, false);
-    localStorage.setInt(StaticStrings.keyUserID, 0);
-
-    Navigator.of(rootcontext).popUntil((route) => route.isFirst);
-    navKey.currentState.pushReplacement(
-        MaterialPageRoute(builder: (BuildContext context) => Login()));
-  }
 }
 
 class AppThemeSelector extends ConsumerWidget {
@@ -464,7 +451,8 @@ class AppThemeSelector extends ConsumerWidget {
                     groupValue: appTheme,
                     dense: true,
                     onChanged: (ThemeMode value) {
-                      setAppTheme(appThemeChooser, value);
+                      setAppTheme(
+                          context, appTheme, appThemeChooser, value, true);
                     },
                   ),
                   Divider(
@@ -480,7 +468,8 @@ class AppThemeSelector extends ConsumerWidget {
                     groupValue: appTheme,
                     dense: true,
                     onChanged: (ThemeMode value) {
-                      setAppTheme(appThemeChooser, value);
+                      setAppTheme(
+                          context, appTheme, appThemeChooser, value, true);
                     },
                   ),
                   Divider(
@@ -496,7 +485,8 @@ class AppThemeSelector extends ConsumerWidget {
                     groupValue: appTheme,
                     dense: true,
                     onChanged: (ThemeMode value) {
-                      setAppTheme(appThemeChooser, value);
+                      setAppTheme(
+                          context, appTheme, appThemeChooser, value, true);
                     },
                   ),
                 ],
@@ -504,36 +494,6 @@ class AppThemeSelector extends ConsumerWidget {
         ],
       ),
     ));
-  }
-
-  setAppTheme(appThemeSelection, result) async {
-    SharedPreferences localStorage = await SharedPreferences.getInstance();
-    var themeString;
-    if (result == ThemeMode.light) {
-      themeString = StaticStrings.themeLight;
-
-      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        //statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: Color(0xfff7f7f7),
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarIconBrightness: Brightness.dark,
-      ));
-    } else if (result == ThemeMode.dark) {
-      themeString = StaticStrings.themeDark;
-      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        //statusBarBrightness: Brightness.dark,
-        systemNavigationBarColor: Color(0xff0e0d0f),
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarIconBrightness: Brightness.light,
-      ));
-    } else if (result == ThemeMode.system) {
-      themeString = StaticStrings.themeSystem;
-    }
-    localStorage.setString(StaticStrings.keyAppTheme, themeString);
-    appThemeSelection.setTheme(result);
-    print("current Theme is $result");
   }
 }
 

@@ -63,8 +63,12 @@
 
     "succ_pwd_change": "Password changed successfully",
 
-    "change_language": "ဘာသာစကား ပြောင်းမယ်",
-    "change_theme" :"Change Theme"
+    "language_change_succ": "\"{}\" ဘာသာသို့ ပြောင်းလဲပြီးပါပြီ။",
+
+    "language":{
+      "my": "မြန်မာ",
+      "en": "English"
+    }  
 
 
 }

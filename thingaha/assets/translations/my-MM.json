@@ -63,6 +63,10 @@
 
     "succ_pwd_change": "လျှို့ဝှက်ကုဒ် ပြောင်းမှု အောင်မြင်ပါတယ်",
 
-    "change_language": "Change Language",
-    "change_theme" :"အရောင် ပြောင်းမယ်"
+    "language_change_succ": "Language Changed to \"{}\".",
+
+    "language": {
+        "my": "မြန်မာ",
+        "en": "English"
+    }
 }

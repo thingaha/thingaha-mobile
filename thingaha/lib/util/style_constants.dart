@@ -233,6 +233,7 @@ class SetStatusBarAndNavBarColor {
   }
 
   void themeChooser(context, appTheme) {
+    print("passed theme is $appTheme");
     SystemChrome.setSystemUIOverlayStyle((appTheme == ThemeMode.light ||
             appTheme == ThemeMode.system &&
                 MediaQuery.of(context).platformBrightness == Brightness.light)
