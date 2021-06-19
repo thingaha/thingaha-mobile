@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/screen/login.dart';
+import 'package:thingaha/util/keys.dart';
 import 'package:thingaha/util/string_constants.dart';
 import 'package:thingaha/util/style_constants.dart';
 
@@ -46,7 +47,7 @@ setAppTheme(context, appTheme, appThemeSelection, ThemeMode result,
     SetStatusBarAndNavBarColor().mainUI(context, result);
 }
 
-logout(context, rootcontext, appTheme, navKey) async {
+logoutFromBottomSheet(context, rootcontext, appTheme, navKey) async {
   // print("This works");
   SharedPreferences localStorage = await SharedPreferences.getInstance();
   localStorage.setString(StaticStrings.keyAccessToken, "");
@@ -57,4 +58,14 @@ logout(context, rootcontext, appTheme, navKey) async {
   navKey.currentState.pushReplacement(
       MaterialPageRoute(builder: (BuildContext context) => Login()));
   SetStatusBarAndNavBarColor().mainUI(context, appTheme);
+}
+
+logoutNormally() async {
+  SharedPreferences localStorage = await SharedPreferences.getInstance();
+  localStorage.setString(StaticStrings.keyAccessToken, "");
+  localStorage.setBool(StaticStrings.keyLogInStatus, false);
+  localStorage.setInt(StaticStrings.keyUserID, 0);
+
+  navKey.currentState
+      .pushReplacement(MaterialPageRoute(builder: (context) => Login()));
 }

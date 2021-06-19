@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:thingaha/util/logout.dart';
+import 'package:thingaha/util/actions.dart';
 
 class ErrorMessageWidget extends StatelessWidget {
   final errorMessage;
@@ -29,7 +29,7 @@ class ErrorMessageWidget extends StatelessWidget {
         ),
         ElevatedButton.icon(
           onPressed: () {
-            logout();
+            logoutNormally();
           },
           label: Text("Logout"),
           icon: Icon(Icons.login_rounded),
@@ -58,7 +58,7 @@ class SomeThingWentWrong extends StatelessWidget {
         ),
         Container(child: Text("There's no data... hmmm...")),
         ElevatedButton.icon(
-          onPressed: logout(),
+          onPressed: logoutNormally(),
           label: Text("Logout"),
           icon: Icon(Icons.login_rounded),
         ),

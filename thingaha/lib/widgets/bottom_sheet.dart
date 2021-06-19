@@ -253,7 +253,7 @@ class _ProfileAndSettingsState extends State<ProfileAndSettings> {
 
             break;
           case StaticStrings.keyActionLogOut:
-            logout(context, rootContext, appTheme, navKey);
+            logoutFromBottomSheet(context, rootContext, appTheme, navKey);
             break;
           case StaticStrings.keyActionTheme:
             SetStatusBarAndNavBarColor().themeChooser(context, appTheme);

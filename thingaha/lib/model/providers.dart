@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thingaha/model/schools.dart';
-import 'package:thingaha/util/logout.dart';
 import 'package:thingaha/model/attendances.dart';
 import 'package:thingaha/model/donatordonations.dart';
 import 'package:thingaha/model/userinfo.dart';
+import 'package:thingaha/util/actions.dart';
 import 'package:thingaha/util/api_strings.dart';
 import 'package:thingaha/util/network.dart';
 import 'package:thingaha/util/string_constants.dart';
@@ -83,7 +83,7 @@ final fetchUserDetail = FutureProvider.autoDispose<UserInfo>((ref) async {
   var userInfoResponse = await Network().getData("${APIs.getUserByID}$userID");
   var body = json.decode(utf8.decode(userInfoResponse.bodyBytes));
   if (body['msg'] == "Token has expired") {
-    logout();
+    logoutNormally();
   }
   //print(utf8.decode(userInfoResponse.bodyBytes));
   //ref.maintainState = true;
@@ -104,7 +104,7 @@ final fetchDonationList =
   //print(utf8.decode(donatorDonationsResponse.bodyBytes));
   var body = json.decode(utf8.decode(donatorDonationsResponse.bodyBytes));
   if (body['msg'] == "Token has expired") {
-    logout();
+    logoutNormally();
   }
 
   final donatorDonations =
@@ -122,7 +122,7 @@ final fetchAttendanceList = FutureProvider.autoDispose<Attendance>((ref) async {
   var body = json.decode(utf8.decode(attendanceResponse.bodyBytes));
 
   if (body['msg'] == "Token has expired") {
-    logout();
+    logoutNormally();
   }
 
   final attendance =
@@ -136,7 +136,7 @@ final attendancePageCount = FutureProvider<int>((ref) async {
   var body = json.decode(utf8.decode(attendanceResponse.bodyBytes));
   var pages = 0;
   if (body['msg'] == "Token has expired") {
-    logout();
+    logoutNormally();
   } else {
     pages = body['data']['pages'];
     //print(pages);
@@ -152,7 +152,7 @@ final attendancePage = FutureProvider.family<Attendance, int>((ref, id) async {
   var body = json.decode(utf8.decode(attendanceResponse.bodyBytes));
   //print(body);
   if (body['msg'] == "Token has expired") {
-    logout();
+    logoutNormally();
   }
 
   return attendanceFromJson(utf8.decode(attendanceResponse.bodyBytes));
@@ -164,7 +164,7 @@ final studentPageCount = FutureProvider<int>((ref) async {
   //print(utf8.decode(response.bodyBytes));
   var pages = 0;
   if (body['msg'] == "Token has expired") {
-    logout();
+    logoutNormally();
   } else {
     pages = body['data']['pages'];
     //print(pages);
@@ -178,7 +178,7 @@ final studentPage = FutureProvider.family<std.Students, int>((ref, id) async {
   var body = json.decode(utf8.decode(response.bodyBytes));
   //print(body);
   if (body['msg'] == "Token has expired") {
-    logout();
+    logoutNormally();
   }
 
   return std.studentsFromJson(utf8.decode(response.bodyBytes));
@@ -190,7 +190,7 @@ final schoolPageCount = FutureProvider<int>((ref) async {
   //print(utf8.decode(response.bodyBytes));
   var pages = 0;
   if (body['msg'] == "Token has expired") {
-    logout();
+    logoutNormally();
   } else {
     pages = body['data']['pages'];
     //print(pages);
@@ -204,7 +204,7 @@ final schoolPage = FutureProvider.family<Schools, int>((ref, id) async {
   var body = json.decode(utf8.decode(response.bodyBytes));
   //print(body);
   if (body['msg'] == "Token has expired") {
-    logout();
+    logoutNormally();
   }
 
   return schoolsFromJson(utf8.decode(response.bodyBytes));
