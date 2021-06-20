@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:thingaha/util/string_constants.dart';
 
 class EditProfile extends StatefulWidget {
   @override
